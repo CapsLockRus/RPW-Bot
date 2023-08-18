@@ -25,6 +25,8 @@ bot = commands.Bot(command_prefix='?', intents=intents, case_insensitive=True)
 emoji = ":dollar:"
 emoji2 = ":euro:"
 
+TOKEN = 'your token'
+
 invest_profit = 2  # доход от инвестиций/коллект (в %)
 
 import time
@@ -4570,4 +4572,4 @@ building_items = load_building_items()
 
 atexit.register(save_building_items)
 
-bot.run('MTExOTMwMjY3MTQ1MTU2NjE4MQ.Ghd0q-.QjcbncQbpUxkgGNG3zxcembZLJazhpW45MTwrs')
+bot.run(TOKEN)
