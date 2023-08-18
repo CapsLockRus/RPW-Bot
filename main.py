@@ -22,8 +22,8 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix='?', intents=intents, case_insensitive=True)
 
-emoji = ":euro:"
-emoji2 = ":pound:"
+emoji = ":dollar:"
+emoji2 = ":euro:"
 
 invest_profit = 2  # доход от инвестиций/коллект (в %)
 
@@ -32,6 +32,76 @@ import time
 infoColor = discord.Color.blue()
 badColor = discord.Color.red()
 goodColor = discord.Color.green()
+
+help_channel = 1099041433752715375
+country_role = 1100419395655843920
+mars_role = 1101938281236680764
+moon_role = 1101938199699406888
+science_role =1101937514807304402
+medicine_role =1101937641051672638
+high_violence =1102289740092408009
+medium_violence =1101940230203899944
+low_violence =1101940369299624097
+high_infrastructure =1101935709595648002
+medium_infrastructure =1101935620198244474
+low_infrastructure =1101935470960721980
+no_infrastructure =1126185282102886490
+high_tourism =1101936111124762735
+medium_tourism =1101936017583374336
+low_tourism =1101935895579480215
+high_economy =1101935342770204733
+medium_economy =1101935271265714396
+low_economy =1101935082094215199
+no_energy =1124777201506717806
+eco_energy =1124777466502860831
+coal_energy =1124777699517415474
+atom_energy =1124777931097505864
+news_channel =1119553428474052669
+server_id =1099027980556185612
+rich_channel =1116803742034042930
+creator_role =1099790203863969942
+deputy_role =1100165902646906910
+administrator_s_role =1132688941045264495
+administrator_role =1100163622379995278
+tech_creator_role =1105217702391451658
+high_oil =1119615502113837117
+medium_oil =1119614481543217283
+low_oil =1119614070262353953
+high_iron =1119633319064248441
+medium_iron =1119633321190760590
+low_iron =1119631601056366652
+high_tin =1119639308614246573
+medium_tin =1119639338490265653
+low_tin =1119638360290492516
+high_silver =1119641715687571567
+medium_silver =1119641669860606073
+low_silver =1119641396580728842
+high_coal =1119642838121062461
+medium_coal =1119642827253624892
+low_coal =1119642583816212600
+high_gold =1119645111597404180
+medium_gold =1119645136381562972
+low_gold =1119644911885631609
+high_gas =1119648280658325584
+medium_gas =1119648512733360259
+low_gas =1119648522434773002
+high_uranium =1119648792887709777
+medium_uranium =1119648924282671164
+low_uranium =1119648954028666930
+sand =1133083407807680642
+sea_water =1100418180133957747
+low_lithium = 1133661295976140880
+medium_lithium = 1133662088955441182
+high_lithium = 1133662360289169429
+
+
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.CommandNotFound):
+        help_channel1 = bot.get_channel(help_channel)
+        await ctx.send(embed=discord.Embed(
+            description=f'Такой команды не существует (возможно она была введена неправильно), все команды указаны в {help_channel1.mention}',
+            color=badColor))
 
 
 class Item:
@@ -42,13 +112,10 @@ class Item:
         self.role_req = role_req
 
 
-@bot.command()
 async def update(ctx, ctx2, update_happiness: bool, update_GDP: bool):
-    role_id = 1100419395655843920 # государство
+    role_id = country_role  # государство
 
-    guild = ctx.guild  # Получаем объект discord.Guild из контекста команды
-
-    role = utils.get(ctx.guild.roles, id = role_id)
+    role = utils.get(ctx.guild.roles, id=role_id)
 
     members = role.members
     message = ""
@@ -62,15 +129,15 @@ async def update(ctx, ctx2, update_happiness: bool, update_GDP: bool):
             message2 += f"{member.mention}: {users_GDP[user_id]:,} {emoji}\n"
 
     if update_happiness:
-        await ctx.send(embed = discord.Embed(title = "Обновление счастья населения", description = message, color = infoColor))
+        await ctx.send(embed=discord.Embed(title="Обновление счастья населения", description=message, color=infoColor))
     if update_GDP:
         if message2 != "":
             await ctx.purge(limit=2)
-            await ctx2.send(embed = discord.Embed(title = "Обновление ВВП стран", description = message2, color = infoColor))
+            await ctx2.send(embed=discord.Embed(title="Обновление ВВП стран", description=message2, color=infoColor))
         else:
-            await ctx2.send(embed = discord.Embed(description="Список ВВП стран пуст, скорее всего никто ещё не собирал доход после последего включения бота (или я что то не так накодил)", color = badColor))
-
-
+            await ctx2.send(embed=discord.Embed(
+                description="Список ВВП стран пуст, скорее всего никто ещё не собирал доход после последего включения бота",
+                color=badColor))
 
 
 # def run_schedule_update():
@@ -89,17 +156,18 @@ async def update(ctx, ctx2, update_happiness: bool, update_GDP: bool):
 #
 async def check_user_happiness(user_id):
     role_happiness = {
-        1101937641051672638: 10,  # мед
-        1102289740092408009: -10,  # хай преступность
-        1101940230203899944: -5,  # норм преступнось
-        1101935709595648002: 8,  # топ инфра
-        1101935620198244474: 3,  # норм инфра
-        1126185282102886490: -5,  # ноу инфры
-        1101935342770204733: 10,  # топ эко
-        1101935082094215199: -10,  # бэд эко
-        1124777201506717806: -5,  # нет энергии
-        1124777699517415474: -10,  # угольная энергия
-        1124777466502860831: 2,  # чистая энергия
+        medicine_role: 10,  # мед
+        high_violence: -10,  # хай преступность
+        medium_violence: -5,  # норм преступнось
+        high_infrastructure: 8,  # топ инфра
+        medium_infrastructure: 3,  # норм инфра
+        no_infrastructure: -5,  # ноу инфры
+        high_economy: 10,  # топ эко
+        low_economy: -10,  # бэд эко
+        no_energy: -5,  # нет энергии
+        coal_energy: -10,  # угольная энергия
+        eco_energy: 2,  # чистая энергия
+        high_tourism: 5  # топ туризм
     }
 
     happiness = 50
@@ -107,7 +175,7 @@ async def check_user_happiness(user_id):
     if user is None:
         return happiness
 
-    guild = bot.get_guild(1099027980556185612)  # Замените GUILD_ID на идентификатор вашего сервера
+    guild = bot.get_guild(server_id)  # Замените GUILD_ID на идентификатор вашего сервера
     if guild is None:
         return happiness
 
@@ -131,41 +199,39 @@ async def check_user_happiness(user_id):
         happiness -= 20
 
     return happiness
+
+
 #
 #
 async def schedule_update():
     while True:
         current_time = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=3)))  # Europe/Moscow
         target_time1 = current_time.replace(hour=12, minute=0, second=0, microsecond=0)
-        target_time2 = current_time.replace(hour=18, minute=0, second=0, microsecond=0)
 
         if current_time > target_time1:
             target_time1 += datetime.timedelta(days=1)
 
-        if current_time > target_time2:
-            target_time2 += datetime.timedelta(days=1)
-
         time_diff1 = (target_time1 - current_time).total_seconds()
-        time_diff2 = (target_time2 - current_time).total_seconds()
 
-        await asyncio.sleep(min(time_diff1, time_diff2))
-        await update(bot.get_channel(1119553428474052669), bot.get_channel(1116803742034042930), False, True)
+        await asyncio.sleep(time_diff1)
+        await update(bot.get_channel(news_channel), bot.get_channel(rich_channel), True, True)
 
 
 @bot.event
 async def on_ready():
     await schedule_update()
 
+
 cooldown_time_withDraw = 120 * 60  # Время задано в секундах
 cooldown_time = 40 * 60  # Время задано в секундах
 cooldown_time_resources = 40 * 60  # Время задано в секундах
 
 
-@bot.command(name = "update-sending")
-@commands.has_any_role(1100163622379995278, 1100165902646906910, 1099790203863969942)
+@bot.command(name="update-sending")
+@commands.has_any_role(administrator_role, administrator_s_role, deputy_role, creator_role)
 async def send_happy(ctx, happy: str, GDP: str):
-    happy_channel = bot.get_channel(1119553428474052669)
-    GDP_channel = bot.get_channel(1116803742034042930)
+    happy_channel = bot.get_channel(news_channel)
+    GDP_channel = bot.get_channel(rich_channel)
 
     if happy.lower() == "yes" or happy.lower() == "no":
         if GDP.lower() == "yes" or GDP.lower() == "no":
@@ -178,7 +244,8 @@ async def send_happy(ctx, happy: str, GDP: str):
             else:
                 GDP = False
         else:
-            await ctx.send(embed = discord.Embed(description = "Неверные параметры, допустимы только \"yes\" или \"no\"", color = badColor))
+            await ctx.send(embed=discord.Embed(description="Неверные параметры, допустимы только \"yes\" или \"no\"",
+                                               color=badColor))
             return
     else:
         await ctx.send(
@@ -196,29 +263,28 @@ async def send_happy(ctx, happy: str, GDP: str):
         return
 
 
-
-
 taxes = {
     "Стройкомплекс": 10000000,
-    "Городской комплекс": 1200000,
+    "Городской комплекс": 2000000,
     "Ферма": 600000,
     "Торговый центр": 3000000,
     "Отель": 1000000,
     "Музей": 2000000,
     "Аквапарк": 5000000,
-    "Частный район": 500000,
-    "Многоэтажный Район": 1000000,
+    "Частный район": 1000000,
+    "Многоэтажный Район": 2000000,
     "Аптека": 500000,
     "Офис парк": 35000000,
     "Ректификационная колонна": 5000000,
     "Химический завод": 15000000,
     "Фабрика микроконтроллеров": 50000000,
     "Металлургический комбинат": 10000000,
-    "ЯТК": 25000000,
-    "НПЗ": 10000000,
-    "ГОК": 5000000,
+    "Ятк": 20000000,
+    "Нпз": 10000000,
+    "Гок": 5000000,
     "Обогатительная центрифуга": 10000000
 }
+
 
 @bot.command(name="taxes-info")
 async def taxes_info(ctx):
@@ -227,9 +293,10 @@ async def taxes_info(ctx):
     for name, number in taxes.items():
         description += f"**{name}**\n{number:,}\n"
 
-    description += "\n Доход с налогов зависит от уровня счастья населения и может изменяться от -70% до +30%"
+    description += "\n Доход с налогов зависит от уровня счастья населения и может изменяться от -70% до +70%"
 
-    await ctx.send(embed = discord.Embed(title=title, description = description, color = infoColor))
+    await ctx.send(embed=discord.Embed(title=title, description=description, color=infoColor))
+
 
 user_happiness = {}
 
@@ -255,29 +322,30 @@ user_happiness = {}
 # 1101935082094215199: 20000000,  # плохая эко
 
 required_resources = {
-    1124777931097505864: {
+    atom_energy: {
         "ТВС": 1
     },
-    1124777699517415474: {
+    coal_energy: {
         "Уголь": 10
     },
-    1101937514807304402: {
+    science_role: {
         "Стекло": 2
     },
-    1101937641051672638: {
+    medicine_role: {
         "Серебро": 5
     },
-    1101935620198244474: {
+    medium_infrastructure: {
         "Сталь": 3
     },
-    1101935709595648002: {
+    high_infrastructure: {
         "Сталь": 5,
         "Битум": 1
     },
-    1101935082094215199: {
+    high_economy: {
         "Пластмассы": 1
     }
 }
+
 
 def check_user_resources(user, role):
     user_id = user.id
@@ -307,7 +375,7 @@ users_GDP = {}
 @bot.command(name='collect')
 async def collect(ctx):
     server = ctx.guild
-    # Получаем пользователя, отправившего команду
+
     user = ctx.author
 
     # if user.id == 1018486099460505622:
@@ -317,27 +385,27 @@ async def collect(ctx):
     user_roles = user.roles
 
     role_income = {
-        1124777931097505864: 1000000000, # атом энергосеть
-        1124777699517415474: 900000000, # грязная энергосеть
-        1124777466502860831: 400000000, # чистая энергосеть
-        1124777201506717806: 0, # ноу энергосеть
-        1101938281236680764: 3000000000, # марс
-        1101938199699406888: 1600000000, # луна
-        1101937514807304402: 1000000000, # наука
-        1101937641051672638: 1000000000, # медик
-        1102289740092408009: 0, # плохая преступ
-        1101940230203899944: 200000000, # средняя преступ
-        1101940369299624097: 800000000, # топ преступ
-        1101935709595648002: 1200000000, # топ инфра
-        1101935620198244474: 500000000, # средняя инфра
-        1101935470960721980: 150000000, # плохая инфра
-        1126185282102886490: 0,  # ноу инфра
-        1101936111124762735: 1000000000, # топ тур
-        1101936017583374336: 400000000, # средний тур
-        1101935895579480215: 20000000, # плохой тур
-        1101935342770204733: 1200000000, # топ эко
-        1101935271265714396: 400000000, # средняя эко
-        1101935082094215199: 20000000, # плохая эко
+        atom_energy: 1000000000,  # атом энергосеть
+        coal_energy: 900000000,  # грязная энергосеть
+        eco_energy: 400000000,  # чистая энергосеть
+        no_energy: 0,  # ноу энергосеть
+        mars_role: 3000000000,  # марс
+        moon_role: 1600000000,  # луна
+        science_role: 1000000000,  # наука
+        medicine_role: 1000000000,  # медик
+        high_violence: 0,  # плохая преступ
+        medium_violence: 200000000,  # средняя преступ
+        low_violence: 600000000,  # топ преступ
+        high_infrastructure: 1200000000,  # топ инфра
+        medium_infrastructure: 500000000,  # средняя инфра
+        low_infrastructure: 150000000,  # плохая инфра
+        no_infrastructure: 0,  # ноу инфра
+        high_tourism: 1000000000,  # топ тур
+        medium_tourism: 400000000,  # средний тур
+        low_tourism: 20000000,  # плохой тур
+        high_economy: 1200000000,  # топ эко
+        medium_economy: 400000000,  # средняя эко
+        low_economy: 20000000,  # плохая эко
         # 1119614070262353953: 100000000,
         # 1119614481543217283: 250000000,
         # 1119615502113837117: 400000000,
@@ -401,12 +469,11 @@ async def collect(ctx):
             if role_id in role_income:
                 has_income_roles = True
                 break
-    if not has_income_roles:
-        for item in user_inv:
-            if item in taxes:
-                has_income_roles = True
-                has_taxes_income = True
-                break
+    for item in user_inv:
+        if item in taxes:
+            has_income_roles = True
+            has_taxes_income = True
+            break
 
     # Если у пользователя нет ни одной роли для сбора дохода, выводим сообщение "Нет ролей для сбора дохода"
     if not has_income_roles:
@@ -427,14 +494,14 @@ async def collect(ctx):
         taxes_income = 0
         for item, quantity in user_inv.items():
             if item in taxes:
-                taxes_income += taxes[item]*quantity
-
+                taxes_income += taxes[item] * quantity
 
         user_happiness[user_id] = await check_user_happiness(user_id)
         happiness_modified = user_happiness[user_id] / 50
 
-        total_income += taxes_income*happiness_modified
-        data += f"Налогов: {taxes_income:,} {emoji}\n"
+        real_income = taxes_income * happiness_modified
+        total_income += real_income
+        data += f"Налогов: {real_income:,} {emoji}\n"
 
     for role_id in role_ids:
         if role_id in role_income:
@@ -449,7 +516,7 @@ async def collect(ctx):
                 else:
                     data += f"Нет ресурсов, роль {role_ping} не приносит доход\n"
 
-    users_GDP[user_id] = (total_income - user_profit)*36
+    users_GDP[user_id] = (total_income - user_profit) * 36
 
     vassal_type, metropolis_id = load_user_autonomy(user.id)
     if vassal_type == "вассал":
@@ -481,61 +548,67 @@ async def collect_res(ctx):
     user_roles = user.roles
 
     role_ResIncome = {
-        1125417585102565406: 250,
-        1100418180133957747: 250,
-        1119614070262353953: 50,
-        1119614481543217283: 150,
-        1119615502113837117: 250,
-        1119638360290492516: 50,
-        1119639338490265653: 150,
-        1119639308614246573: 250,
-        1119641396580728842: 50,
-        1119641669860606073: 150,
-        1119641715687571567: 250,
-        1119642583816212600: 50,
-        1119642827253624892: 150,
-        1119642838121062461: 250,
-        1119644911885631609: 50,
-        1119645136381562972: 150,
-        1119645111597404180: 250,
-        1119648522434773002: 50,
-        1119648512733360259: 150,
-        1119648280658325584: 250,
-        1119648954028666930: 50,
-        1119648924282671164: 150,
-        1119648792887709777: 250,
-        1119631601056366652: 50,
-        1119633321190760590: 150,
-        1119633319064248441: 250,
+        sand: 250,
+        sea_water: 250,
+        low_coal: 50,
+        medium_coal: 150,
+        high_coal: 250,
+        low_gas: 50,
+        medium_gas: 150,
+        high_gas: 250,
+        low_gold: 50,
+        medium_gold: 150,
+        high_gold: 250,
+        low_iron: 50,
+        medium_iron: 150,
+        high_iron: 250,
+        low_oil: 50,
+        medium_oil: 150,
+        high_oil: 250,
+        low_silver: 50,
+        medium_silver: 150,
+        high_silver: 250,
+        low_tin: 50,
+        medium_tin: 150,
+        high_tin: 250,
+        low_uranium: 50,
+        medium_uranium: 150,
+        high_uranium: 250,
+        low_lithium: 50,
+        medium_lithium: 150,
+        high_lithium: 250
     }
 
     role_ResType = {
-        1125417585102565406: "Песок",
-        1100418180133957747: "Морская вода",
-        1119614070262353953: "Сырая нефть",
-        1119614481543217283: "Сырая нефть",
-        1119615502113837117: "Сырая нефть",
-        1119638360290492516: "Свинцовая руда",
-        1119639338490265653: "Свинцовая руда",
-        1119639308614246573: "Свинцовая руда",
-        1119641396580728842: "Серебряная руда",
-        1119641669860606073: "Серебряная руда",
-        1119641715687571567: "Серебряная руда",
-        1119642583816212600: "Сырой уголь",
-        1119642827253624892: "Сырой уголь",
-        1119642838121062461: "Сырой уголь",
-        1119644911885631609: "Золотоносный грунт",
-        1119645136381562972: "Золотоносный грунт",
-        1119645111597404180: "Золотоносный грунт",
-        1119648522434773002: "Неочищенный природный газ",
-        1119648512733360259: "Неочищенный природный газ",
-        1119648280658325584: "Неочищенный природный газ",
-        1119648954028666930: "Урановая руда",
-        1119648924282671164: "Урановая руда",
-        1119648792887709777: "Урановая руда",
-        1119631601056366652: "Железная руда",
-        1119633321190760590: "Железная руда",
-        1119633319064248441: "Железная руда"
+        sand: "Песок",
+        sea_water: "Морская вода",
+        low_oil: "Сырая нефть",
+        medium_oil: "Сырая нефть",
+        high_oil: "Сырая нефть",
+        low_tin: "Свинцовая руда",
+        medium_tin: "Свинцовая руда",
+        high_tin: "Свинцовая руда",
+        low_silver: "Серебряная руда",
+        medium_silver: "Серебряная руда",
+        high_silver: "Серебряная руда",
+        low_coal: "Сырой уголь",
+        medium_coal: "Сырой уголь",
+        high_coal: "Сырой уголь",
+        low_gold: "Золотоносный грунт",
+        medium_gold: "Золотоносный грунт",
+        high_gold: "Золотоносный грунт",
+        low_gas: "Неочищенный природный газ",
+        medium_gas: "Неочищенный природный газ",
+        high_gas: "Неочищенный природный газ",
+        low_uranium: "Урановая руда",
+        medium_uranium: "Урановая руда",
+        high_uranium: "Урановая руда",
+        low_iron: "Железная руда",
+        medium_iron: "Железная руда",
+        high_iron: "Железная руда",
+        low_lithium: "Сырой литий",
+        medium_lithium: "Сырой литий",
+        high_lithium: "Сырой литий"
     }
 
     role_ids = [role.id for role in user_roles]
@@ -599,7 +672,7 @@ cooldownsWithDraw = {}
 
 
 @bot.command(name='set-autonomy')
-@commands.has_any_role(1100163622379995278, 1100165902646906910, 1099790203863969942)
+@commands.has_any_role(administrator_role, administrator_s_role, deputy_role, creator_role)
 async def set_autonomy(ctx, user: discord.Member, autonomy_type: str, metropolis: discord.Member):
     # Проверяем правильность введенного типа автономии
     if autonomy_type.lower() not in ["вассал", "автономия"]:
@@ -624,7 +697,7 @@ def save_user_autonomy(user_id, autonomy_type, metropolis_id):
 
 
 @bot.command(name='get-autonomy')
-@commands.has_any_role(1100163622379995278, 1100165902646906910, 1099790203863969942)
+@commands.has_any_role(administrator_role, administrator_s_role, deputy_role, creator_role)
 async def get_autonomy(ctx, user: discord.Member):
     autonomy_type, metropolis_id = load_user_autonomy(user.id)
     await get_autonomy_work(ctx, user, metropolis_id, autonomy_type)
@@ -642,7 +715,7 @@ async def get_autonomy_work(ctx, user: discord.Member, target: int, autonomy_typ
 
 
 @bot.command(name='remove-autonomy')
-@commands.has_any_role(1100163622379995278, 1100165902646906910, 1099790203863969942)
+@commands.has_any_role(administrator_role, administrator_s_role, deputy_role, creator_role)
 async def remove_autonomy(ctx, user: discord.Member):
     # Удаляем информацию об автономии пользователя
     delete_user_autonomy(user.id)
@@ -740,7 +813,7 @@ async def withdraw(ctx, amount: str):
 
     if amount.lower() == 'max':
         # Если введено "all", списываем все деньги с баланса отправителя
-        amount = get_user_investment(user.id) // 2
+        amount = get_user_investment(user.id) // 4
     else:
         # Удаляем запятые из строки суммы и преобразуем в число
         amount = int(amount.replace(',', ''))
@@ -762,7 +835,7 @@ async def withdraw(ctx, amount: str):
     # Проверяем, достаточно ли средств на инвестиционном счете для снятия половины суммы
     user_investments = get_user_investment(user.id)
     if user_investments < amount:
-        await ctx.send(embed=discord.Embed(title="У вас недостаточно средств на инвестиционном счете.", color=badColor))
+        await ctx.send(embed=discord.Embed(title="У вас недостаточно средств на инвестиционном счете", color=badColor))
         return
 
     # Проверяем, разрешено ли снятие только половины средств
@@ -779,30 +852,64 @@ async def withdraw(ctx, amount: str):
     last_withdraw_times[user.id] = current_time
 
     await ctx.send(embed=discord.Embed(
-        description=f"Вы успешно сняли {amount:,} {emoji} с инвестиционного фонда и добавили их на свой баланс.",
+        description=f"Вы успешно сняли {amount:,} {emoji} с инвестиционного фонда и добавили их на свой баланс",
         color=goodColor))
 
 
 @bot.command(name='take-item')
-@commands.has_any_role(1100163622379995278, 1100165902646906910, 1099790203863969942)
-async def take_item(ctx, user: discord.Member, item_quantity: str, item_name: str):
-    server = ctx.guild
-    # Проверяем роли пользователя
-    if not any(role.id in [1100163622379995278, 1100165902646906910, 1099790203863969942] for role in ctx.author.roles):
-        # Если у пользователя нет требуемых ролей, отправляем сообщение об ошибке
-        await ctx.send(
-            embed=discord.Embed(title="У вас недостаточно прав для выполнения этой команды.", color=badColor))
-        return
+@commands.has_any_role(administrator_role, administrator_s_role, deputy_role, creator_role)
+async def take_item(ctx, user: discord.Member, item_quantity: str, *item_name: str):
+    item_name = " ".join(item_name)
+    item_name = item_name.capitalize()
 
-    item_quantity = int(item_quantity.replace(",", ""))
-
-    # Получаем ID пользователя
     user_id = user.id
 
-    if item_name not in get_user_inventory(user_id):
-        await ctx.send(
-            embed=discord.Embed(description=f"В инвентаре пользователя {user.mention} нет {item_name}", color=badColor))
-        return
+    inv = get_user_inventory(user_id)
+
+    if item_name not in inv:
+        needed_items_names = {}
+        items = inv
+        i = 1
+        for item in items:
+            if item.find(item_name) != -1:
+                needed_items_names[item] = i
+                i += 1
+        if len(needed_items_names) > 1:
+            desc = ""
+            for name in needed_items_names:
+                desc += f"[{str(needed_items_names[name])}] - {name}\n"
+            await ctx.send(embed=discord.Embed(title="Найдено несколько предметов:", description=desc, color=infoColor))
+            numbers = []
+            for name in needed_items_names:
+                numbers.append(str(needed_items_names[name]))
+            try:
+                response = await bot.wait_for('message', timeout=30, check=lambda
+                    message: message.author == ctx.author and message.channel == ctx.channel)
+
+                resp = response.content.lower()
+                if resp in numbers:
+                    number = resp
+                    need_name = ""
+                    for name in needed_items_names:
+                        if str(needed_items_names[name]) == number:
+                            need_name = name
+                    item_name = need_name
+                else:
+                    await ctx.send(embed=discord.Embed(title="Введено неверное число, удаление отменено", color=badColor))
+                    return
+            except asyncio.TimeoutError:
+                await ctx.send(embed=discord.Embed(title="Время вышло, удаление отменено", color=badColor))
+                return
+
+        elif len(needed_items_names) == 1:
+            for name in needed_items_names:
+                item_name = name
+        else:
+            embed = discord.Embed(title="Предмет не найден", color=badColor)
+            await ctx.send(embed=embed)
+            return
+
+    item_quantity = int(item_quantity.replace(",", ""))
 
     # Обновляем инвентарь пользователя
     update_user_inventory(user_id, item_name, -item_quantity)
@@ -814,18 +921,15 @@ async def take_item(ctx, user: discord.Member, item_quantity: str, item_name: st
 
 
 @bot.command(name='give-item')
-@commands.has_any_role(1100163622379995278, 1100165902646906910, 1099790203863969942)
+@commands.has_any_role(administrator_role, administrator_s_role, deputy_role, creator_role)
 async def give_item(ctx, user: discord.Member, item_quantity: str, *item_name_list: str):
 
+
+
     item_name = " ".join(item_name_list)
+    item_name = item_name.capitalize()
 
     server = ctx.guild
-    # Проверяем роли пользователя
-    if not any(role.id in [1100163622379995278, 1100165902646906910, 1099790203863969942] for role in ctx.author.roles):
-        # Если у пользователя нет требуемых ролей, отправляем сообщение об ошибке
-        await ctx.send(
-            embed=discord.Embed(title="У вас недостаточно прав для выполнения этой команды.", color=badColor))
-        return
 
     item_quantity = int(item_quantity.replace(",", ""))
 
@@ -838,21 +942,19 @@ async def give_item(ctx, user: discord.Member, item_quantity: str, *item_name_li
     # Отправляем сообщение об успешной выдаче предметов
     await ctx.send(embed=discord.Embed(description=f"Пользователю {user.mention} выдано {item_quantity} {item_name}.",
                                        color=goodColor))
-
+@give_item.error
+async def give_item_error(ctx, error):
+    if isinstance(error, commands.MissingAnyRole):
+        await ctx.send(
+            embed=discord.Embed(title="Недостаточно прав для выполнения этой команды.", color=badColor))
 
 @bot.command(name='give-res')
-@commands.has_any_role(1100163622379995278, 1100165902646906910, 1099790203863969942)
+@commands.has_any_role(administrator_role, administrator_s_role, deputy_role, creator_role)
 async def give_resource(ctx, user: discord.Member, resource_quantity: str, *resource_name: str):
-
     resource_name = " ".join(resource_name)
+    resource_name = resource_name.capitalize()
 
     server = ctx.guild
-    # Проверяем роли пользователя
-    if not any(role.id in [1100163622379995278, 1100165902646906910, 1099790203863969942] for role in ctx.author.roles):
-        # Если у пользователя нет требуемых ролей, отправляем сообщение об ошибке
-        await ctx.send(
-            embed=discord.Embed(title="У вас недостаточно прав для выполнения этой команды.", color=badColor))
-        return
 
     resource_quantity = int(resource_quantity.replace(",", ""))
 
@@ -869,28 +971,57 @@ async def give_resource(ctx, user: discord.Member, resource_quantity: str, *reso
 
 
 @bot.command(name='take-res')
-@commands.has_any_role(1100163622379995278, 1100165902646906910, 1099790203863969942)
+@commands.has_any_role(administrator_role, administrator_s_role, deputy_role, creator_role)
 async def take_resource(ctx, user: discord.Member, resource_quantity: str, *resource_name: str):
-
     resource_name = " ".join(resource_name)
+    resource_name = resource_name.capitalize()
+    user_id = user.id
+    inv = get_user_inventory(user_id)
 
-    server = ctx.guild
-    # Проверяем роли пользователя
-    if not any(role.id in [1100163622379995278, 1100165902646906910, 1099790203863969942] for role in ctx.author.roles):
-        # Если у пользователя нет требуемых ролей, отправляем сообщение об ошибке
-        await ctx.send(
-            embed=discord.Embed(title="У вас недостаточно прав для выполнения этой команды.", color=badColor))
-        return
+    if resource_name not in inv:
+        needed_items_names = {}
+        items = inv
+        i = 1
+        for item in items:
+            if item.find(resource_name) != -1:
+                needed_items_names[item] = i
+                i += 1
+        if len(needed_items_names) > 1:
+            desc = ""
+            for name in needed_items_names:
+                desc += f"[{str(needed_items_names[name])}] - {name}\n"
+            await ctx.send(embed=discord.Embed(title="Найдено несколько ресурсов:", description=desc, color=infoColor))
+            numbers = []
+            for name in needed_items_names:
+                numbers.append(str(needed_items_names[name]))
+            try:
+                response = await bot.wait_for('message', timeout=30, check=lambda
+                    message: message.author == ctx.author and message.channel == ctx.channel)
+
+                resp = response.content.lower()
+                if resp in numbers:
+                    number = resp
+                    need_name = ""
+                    for name in needed_items_names:
+                        if str(needed_items_names[name]) == number:
+                            need_name = name
+                    resource_name = need_name
+                else:
+                    await ctx.send(embed=discord.Embed(title="Введено неверное число, удаление отменено", color=badColor))
+                    return
+            except asyncio.TimeoutError:
+                await ctx.send(embed=discord.Embed(title="Время вышло, удаление отменено", color=badColor))
+                return
+
+        elif len(needed_items_names) == 1:
+            for name in needed_items_names:
+                resource_name = name
+        else:
+            embed = discord.Embed(title="Ресурс не найден", color=badColor)
+            await ctx.send(embed=embed)
+            return
 
     resource_quantity = int(resource_quantity.replace(",", ""))
-
-    # Получаем ID пользователя
-    user_id = user.id
-
-    if resource_name not in get_user_resources(user_id):
-        await ctx.send(embed=discord.Embed(description=f"На складах пользователя {user.mention} нет {resource_name}",
-                                           color=badColor))
-        return
 
     # Обновляем ресурсы пользователя
     update_user_resources(user_id, resource_name, -resource_quantity)
@@ -902,7 +1033,7 @@ async def take_resource(ctx, user: discord.Member, resource_quantity: str, *reso
 
 
 @bot.command(name='pay')
-async def pay(ctx, recipient: discord.User, amount: str):
+async def pay(ctx, recipient: discord.Member, amount: str):
     server = ctx.guild
     # Получаем ID отправителя и получателя
     sender_id = ctx.author.id
@@ -946,54 +1077,107 @@ prices = {
     # "Урановый концентрат": 0,
     # "Очищенный природный газ": 0,  для продажи необходимо произвести СПГ
     # "Золотоносный концентрат": 0,
-    "Каменный уголь": 4000000,
+    "Каменный уголь": 20000000,
     # "Серебряный концентрат": 0,
-    "Свинец": 7000000,
-    "Железо": 5000000,
-    "Керосин": 8000000,
-    "Бензин": 7000000,
-    "Дизельное топливо": 6000000,
-    "Мазут": 4000000,
-    "Пластмассы": 10000000,
+    "Свинец": 35000000,
+    "Железо": 25000000,
+    "Керосин": 80000000,
+    "Бензин": 70000000,
+    "Дизельное топливо": 50000000,
+    "Мазут": 20000000,
+    "Пластмассы": 100000000,
     # "Синтез-газ": 0,
-    "Сера": 8000000,
-    "Порох": 16000000,
+    "Сера": 60000000,
+    "Порох": 80000000,
     # "Аммиак": 0,
-    "Золото": 10000000,
-    "Серебро": 7000000,
+    "Золото": 50000000,
+    "Серебро": 35000000,
     # "Необогащённый уран (<1%)": 0,
     # "Низкообогащённый уран (1-5%)": 0,
     # "Низкообогащённый уран (5-20%)": 0,
     # "Среднеобогащённый уран (20-45%)": 0,
     # "Среднеобогащённый уран (45-70%)": 0,
     # "Высокообогащённый уран (70-90%)": 0,
-    "Сталь": 12000000,
-    "СПГ": 6000000,
-    "Литий-7": 8000000,
+    "Сталь": 60000000,
+    "СПГ": 30000000,
+    "Литий-7": 40000000,
     # "Плутоний-239": 0,
     # "Ядерные отходы": 0,
     # "Радиоактивная кашица": 0,
     # "Песок": 0,
-    "Стекло": 4000000,
+    "Стекло": 40000000,
     # "Металлический кремний": 0,
     # "Кремниевая пластина": 0,
-    "Микроконтроллеры": 25000000,
+    "Микроконтроллеры": 250000000,
     # "Солёная вода": 0,
     # "Литий-6": 0,
     # "Тритий": 0,
     # "Дейтерий": 0,
-    "Битум": 7000000,
+    "Битум": 70000000,
     # "Высокообогащённый уран (>90%)": 0
 }
+
+
+@bot.command(name="sell-info")
+async def sell_information(ctx):
+    desc = ""
+    for item, price in prices.items():
+        desc += f"**{item}**\n{price:,}\n"
+
+    desc += "\nЕсли ресурса нет в этом списке, значит его нельзя продать"
+
+    await ctx.send(
+        embed=discord.Embed(title="Продажа ресурсов (цена за 1 единицу на складе):", description=desc, color=infoColor))
 
 
 @bot.command(name="sell")
 async def sell(ctx, amount: str, *resource: str):
     resource = " ".join(resource)
+    resource = resource.capitalize()
 
     if resource not in prices:
-        await ctx.send(embed=discord.Embed(title="Указан неверный ресурс/этот ресурс нельзя продать", color=badColor))
-        return
+        needed_items_names = {}
+        items = prices
+        i = 1
+        for item in items:
+            if item.find(resource) != -1:
+                needed_items_names[item] = i
+                i += 1
+        if len(needed_items_names) > 1:
+            desc = ""
+            for name in needed_items_names:
+                desc += f"[{str(needed_items_names[name])}] - {name}\n"
+            await ctx.send(embed=discord.Embed(title="Найдено несколько предметов:", description=desc, color=infoColor))
+            numbers = []
+            for name in needed_items_names:
+                numbers.append(str(needed_items_names[name]))
+            try:
+                response = await bot.wait_for('message', timeout=30, check=lambda
+                    message: message.author == ctx.author and message.channel == ctx.channel)
+
+                resp = response.content.lower()
+                if resp in numbers:
+                    number = resp
+                    need_name = ""
+                    for name in needed_items_names:
+                        if str(needed_items_names[name]) == number:
+                            need_name = name
+                    resource = need_name
+                else:
+                    await ctx.send(embed=discord.Embed(title="Введено неверное число, продажа отменена", color=badColor))
+                    return
+            except asyncio.TimeoutError:
+                await ctx.send(embed=discord.Embed(title="Время вышло, продажа отменена", color=badColor))
+                return
+
+        elif len(needed_items_names) == 1:
+            for name in needed_items_names:
+                resource = name
+        else:
+            embed = discord.Embed(title="Указан неверный ресурс/этот ресурс нельзя продать", color=badColor)
+            await ctx.send(embed=embed)
+            return
+
     user = ctx.author
 
     resources = get_user_resources(user.id)
@@ -1013,7 +1197,7 @@ async def sell(ctx, amount: str, *resource: str):
             await ctx.send(embed=discord.Embed(title="На складах недостаточно указанного ресурса", color=badColor))
             return
 
-    update_user_inventory(user.id, resource, -amount)
+    update_user_resources(user.id, resource, -amount)
     update_user_balance(user.id, total_price)
 
     embed = discord.Embed(
@@ -1083,7 +1267,7 @@ conversion_rules = {
             "Урановая руда": 2
         },
         "required_items": {
-            "ГОК": 2
+            "Гок": 2
         },
         "converted_resources": {
             "Урановый концентрат": 1
@@ -1166,38 +1350,39 @@ conversion_rules = {
             "Высокообогащённый уран (>90%)": 1
         }
     },
-    "ТВС": {
+    "Твс": {
         "required_resources": {
             "Низкообогащённый уран (1-5%)": 10,
             "Сталь": 5
         },
         "required_items": {
-            "ЯТК": 1
+            "Ятк": 1
         },
         "converted_resources": {
-            "ТВС": 1
+            "ТВС": 10
         }
     },
     "Очищенный природный газ": {
         "required_resources": {
-            "Неочищенный природный газ": 5
-        },
-        "required_items": {
-            "Химический завод": 0.5
-        },
-        "converted_resources": {
-            "Очищенный природный газ": 4
-        }
-    },
-    "СПГ": {
-        "required_resources": {
-            "Очищенный природный газ": 1
+            "Неочищенный природный газ": 10
         },
         "required_items": {
             "Химический завод": 1
         },
         "converted_resources": {
-            "СПГ": 1
+            "Очищенный природный газ": 8,
+            "Сера": 1
+        }
+    },
+    "Спг": {
+        "required_resources": {
+            "Очищенный природный газ": 10
+        },
+        "required_items": {
+            "Химический завод": 1
+        },
+        "converted_resources": {
+            "СПГ": 10
         }
     },
     "Золотоносный концентрат": {
@@ -1205,7 +1390,7 @@ conversion_rules = {
             "Золотоносный грунт": 2
         },
         "required_items": {
-            "ГОК": 2
+            "Гок": 2
         },
         "converted_resources": {
             "Золотоносный концентрат": 1
@@ -1227,7 +1412,7 @@ conversion_rules = {
             "Сырой уголь": 1.2
         },
         "required_items": {
-            "ГОК": 1
+            "Гок": 1
         },
         "converted_resources": {
             "Каменный уголь": 1
@@ -1238,7 +1423,7 @@ conversion_rules = {
             "Серебряная руда": 2
         },
         "required_items": {
-            "ГОК": 2
+            "Гок": 2
         },
         "converted_resources": {
             "Серебряный концентрат": 1
@@ -1260,7 +1445,7 @@ conversion_rules = {
             "Свинцовая руда": 2
         },
         "required_items": {
-            "ГОК": 2
+            "Гок": 2
         },
         "converted_resources": {
             "Обогащённая свинцовая руда": 1
@@ -1282,7 +1467,7 @@ conversion_rules = {
             "Железная руда": 2
         },
         "required_items": {
-            "ГОК": 2
+            "Гок": 2
         },
         "converted_resources": {
             "Обогащённая железная руда": 1
@@ -1304,7 +1489,7 @@ conversion_rules = {
             "Сырая нефть": 20
         },
         "required_items": {
-            "Ректификационная колонна": 3
+            "Ректификационная колонна": 20
         },
         "converted_resources": {
             "Пластмассы": 1,
@@ -1319,7 +1504,7 @@ conversion_rules = {
             "Мазут": 2
         },
         "required_items": {
-            "НПЗ": 1
+            "Нпз": 1
         },
         "converted_resources": {
             "Битум": 1
@@ -1330,7 +1515,7 @@ conversion_rules = {
             "Мазут": 7
         },
         "required_items": {
-            "НПЗ": 2
+            "Нпз": 2
         },
         "converted_resources": {
             "Дизельное топливо": 3,
@@ -1343,7 +1528,7 @@ conversion_rules = {
             "Дизельное топливо": 5
         },
         "required_items": {
-            "НПЗ": 2,
+            "Нпз": 2,
         },
         "converted_resources": {
             "Бензин": 3,
@@ -1355,7 +1540,7 @@ conversion_rules = {
             "Дизельное топливо": 5
         },
         "required_items": {
-            "НПЗ": 1
+            "Нпз": 1
         },
         "converted_resources": {
             "Пластмассы": 2
@@ -1381,17 +1566,6 @@ conversion_rules = {
         },
         "converted_resources": {
             "Аммиак": 1
-        }
-    },
-    "Сера": {
-        "required_resources": {
-            "Неочищенный природный газ": 10
-        },
-        "required_items": {
-            "Химический завод": 2
-        },
-        "converted_resources": {
-            "Сера": 1
         }
     },
     "Порох": {
@@ -1423,8 +1597,8 @@ conversion_rules = {
             "Ядерные отходы": 10
         },
         "required_items": {
-            "ЯТК": 2,
-            "Ядерная программа": 1
+            "Ятк": 2,
+            "Ядерная программа": 0.00001
         },
         "converted_resources": {
             "Плутоний-239": 1,
@@ -1529,7 +1703,7 @@ conversion_rules = {
         },
         "required_items": {
             "Ядерный реактор": 3,
-            "Ядерная программа": 1
+            "Ядерная программа": 0.00001
         },
         "converted_resources": {
             "Тритий": 5
@@ -1541,7 +1715,7 @@ conversion_rules = {
         },
         "required_items": {
             "Ядерный реактор": 1,
-            "Ядерная программа": 1
+            "Ядерная программа": 0.00001
         },
         "converted_resources": {
             "Плутоний-239": 1
@@ -1558,6 +1732,7 @@ last_item_usage = {}
 @bot.command(name="refine")
 async def refine(ctx, amount: str, *resource: str):
     resource = " ".join(resource)
+    resource = resource.capitalize()
 
     user = ctx.author
 
@@ -1573,14 +1748,48 @@ async def refine(ctx, amount: str, *resource: str):
         await ctx.send(embed=embed)
         return
 
-    # Проверяем, если указанный ресурс может быть преобразован
     if resource not in conversion_rules:
-        embed = discord.Embed(
-            description=f"Рецепт {resource} не может быть выполнен (возможно, его не существет)",
-            color=badColor
-        )
-        await ctx.send(embed=embed)
-        return
+        needed_items_names = {}
+        items = conversion_rules
+        i = 1
+        for item in items:
+            if item.find(resource) != -1:
+                needed_items_names[item] = i
+                i += 1
+        if len(needed_items_names) > 1:
+            desc = ""
+            for name in needed_items_names:
+                desc += f"[{str(needed_items_names[name])}] - {name}\n"
+            await ctx.send(embed=discord.Embed(title="Найдено несколько рецептов:", description=desc, color=infoColor))
+            numbers = []
+            for name in needed_items_names:
+                numbers.append(str(needed_items_names[name]))
+            try:
+                response = await bot.wait_for('message', timeout=30, check=lambda
+                    message: message.author == ctx.author and message.channel == ctx.channel)
+
+                resp = response.content.lower()
+                if resp in numbers:
+                    number = resp
+                    need_name = ""
+                    for name in needed_items_names:
+                        if str(needed_items_names[name]) == number:
+                            need_name = name
+                    resource = need_name
+                else:
+                    await ctx.send(embed=discord.Embed(title="Введено неверное число, рецепт отменён", color=badColor))
+                    return
+            except asyncio.TimeoutError:
+                await ctx.send(embed=discord.Embed(title="Время вышло, рецепт отменён", color=badColor))
+                return
+
+        elif len(needed_items_names) == 1:
+            for name in needed_items_names:
+                resource = name
+        else:
+            embed = discord.Embed(title="Рецепт не найден", color=badColor)
+            await ctx.send(embed=embed)
+            return
 
     # Получаем правила конвертации для указанного ресурса
     conversion_rule = conversion_rules[resource]
@@ -1613,7 +1822,7 @@ async def refine(ctx, amount: str, *resource: str):
         elif error_type == "error22":
             await ctx.send(embed=discord.Embed(title="Недостаточно требуемого предмета(ов)!", color=badColor))
         elif error_type == "error23":
-            await ctx.send(emed=discord.Embed(title="Для выполнения этого рецепта требуется наличие ядерной программы",
+            await ctx.send(embed=discord.Embed(title="Для выполнения этого рецепта требуется наличие ядерной программы",
                                               color=badColor))
         else:
             await ctx.send(
@@ -1625,7 +1834,7 @@ async def refine(ctx, amount: str, *resource: str):
 
     # Отправляем сообщение об успешной конвертации
     embed = discord.Embed(
-        description=f"Вы успешно преобразовали {amount} {resource} в {conversion_rule['converted_resources']}*{amount}",
+        description=f"Произведено {amount} {resource}",
         color=goodColor
     )
     await ctx.send(embed=embed)
@@ -1635,6 +1844,7 @@ def has_sufficient_resources(user_id, required_resources, amount):
     user_resources = get_user_resources(user_id)
 
     for resource, quantity in required_resources.items():
+        quantity = math.ceil(quantity)
         if resource not in user_resources or user_resources[resource] < quantity:
             return False
 
@@ -1675,8 +1885,6 @@ def perform_conversion_refine(user_id, conversion_rule, amount):
     return "ok"
 
 
-
-
 def can_use_items(user_id, required_items):
     current_time = time.time()
 
@@ -1700,10 +1908,17 @@ def mark_items_used(user_id, required_items):
 async def refine_info(ctx):
     recipes = list(conversion_rules.keys())
     total_recipes = len(recipes)
-    batch_size = 20  # Размер пачки рецептов
+    batch_size = 3  # Размер пачки рецептов
 
     # Разделение рецептов на пачки
     recipe_batches = [recipes[i:i + batch_size] for i in range(0, total_recipes, batch_size)]
+
+    batches = []
+
+    b = {
+        "current_batch": 0
+    }
+
 
     for batch in recipe_batches:
         # Создаем встроенное сообщение
@@ -1716,24 +1931,47 @@ async def refine_info(ctx):
             required_items = recipe_info.get("required_items", {})
             converted_resources = recipe_info.get("converted_resources", {})
 
-            recipe_text = "**Необходимые ресурсы:**\n"
+            recipe_text = "*Необходимые ресурсы:*\n"
             for resource, amount in required_resources.items():
-                recipe_text += f"- {resource}: {amount:,}\n"
+                recipe_text += f"- {resource}: {amount:,}"
 
-            recipe_text += "\n**Необходимые предметы:**\n"
+            recipe_text += "\n*Необходимые предметы:*\n"
             for item, amount in required_items.items():
-                recipe_text += f"- {item}: {amount:,}\n"
+                recipe_text += f"- {item}: {amount:,}"
 
-            recipe_text += "\n**Результат переработки:**\n"
+            recipe_text += "\n*Результат переработки:*\n"
             for resource, amount in converted_resources.items():
                 recipe_text += f"- {resource}: {amount:,}\n"
 
-            recipe_text += "\n"
 
-            embed.add_field(name=f"Рецепт: {recipe}\n", value=recipe_text, inline=False)
+            embed.add_field(name=f"🏭 Рецепт: {recipe}\n", value=recipe_text, inline=False)
 
-        # Отправляем встроенное сообщение в канал
-        await ctx.send(embed=embed)
+        batches.append(embed)
+
+    max_batch = len(batches) - 1
+
+    view = View()
+
+    next_page = Button(label="➡️", style=discord.ButtonStyle.blurple)
+    previous_page = Button(label="⬅️", style=discord.ButtonStyle.blurple)
+
+    async def next_call(interaction):
+        if b["current_batch"] < max_batch:
+            b["current_batch"] += 1
+            await message.edit(embed=batches[b["current_batch"]], view = view)
+    async def previous_call(interaction):
+        if b["current_batch"] > 0:
+            b["current_batch"] -= 1
+            await message.edit(embed=batches[b["current_batch"]], view=view)
+
+    next_page.callback = next_call
+    previous_page.callback = previous_call
+    view.add_item(previous_page)
+    view.add_item(next_page)
+
+    message = await ctx.send(embed = batches[0], view=view)
+
+
 
 
 @bot.command(name="nuke-ready")
@@ -1782,7 +2020,7 @@ async def nuc_ready(ctx, level: int):
             description=f"Начат процесс повышения уровня готовности, это займёт {int(wait_time // 60)} минут",
             color=infoColor))
         await asyncio.sleep(wait_time)
-        channel = 1119553428474052669
+        channel = news_channel
         title = "Готовность сил ядерного сдерживания"
         if level == 1:
             pict = "D:/RP World Bot/Images/nuc_ready_2.jpg"
@@ -1805,6 +2043,21 @@ async def nuc_level(ctx):
     user_id = str(ctx.author.id)
     user_file_path = f"D:/RP World Bot/Users/{user_id}_nuc_ready.txt"
 
+    inv = get_user_inventory(user_id)
+    allow1 = False
+    allow2 = False
+    for item in ICBM_list:
+        if item in inv:
+            allow1 = True
+    for item in attack_list_info:
+        if item in inv:
+            allow2 = True
+    if not allow1 or not allow2:
+        await ctx.send(embed=discord.Embed(
+            description="У страны нет сил ядерного сдерживания (для этого необходимо иметь по крайней мере 1 МБР и 1 ядерную (термоядерную) боеголовку)",
+            color=badColor))
+        return
+
     # Проверка наличия файла с уровнем готовности
     if os.path.isfile(user_file_path):
         # Чтение файла с уровнем готовности
@@ -1820,20 +2073,21 @@ import random
 arrived_warheads = {}
 
 ICBM_price = {
-    "МБР": 1,
-    "МБР х3": 3,
-    "МБР х6": 6,
-    "МБР х10": 10
+    "Мбр": 1,
+    "Мбр х3": 3,
+    "Мбр х6": 6,
+    "Мбр х10": 10
 }
 
 nuke_damage = {
     "Ядерная боеголовка 30 кт": 1,
     "Ядерная боеголовка 60 кт": 2,
     "Ядерная боеголовка 100 кт": 3,
-    "Термоядерная боеголовка 300 кт": 8,
-    "Термоядерная боеголовка 1 мт": 20,
-    "Термоядерная боеголовка 3 мт": 50
+    "Термоядерная боеголовка 300 кт": 7,
+    "Термоядерная боеголовка 1 мт": 15,
+    "Термоядерная боеголовка 3 мт": 35
 }
+
 
 @bot.command(name="nuke")
 async def nuke(ctx, *targets: discord.Member):
@@ -1898,11 +2152,11 @@ async def nuke(ctx, *targets: discord.Member):
                 for item, quantity in author_data.items():
                     if need_ICBM > have_ICBM:
                         if item in ICBM_price:
-                            if have_ICBM + ICBM_price[item]*quantity > need_ICBM:
+                            if have_ICBM + ICBM_price[item] * quantity > need_ICBM:
                                 ok = 0
                                 for yea in range(quantity):
                                     ok += 1
-                                    if have_ICBM + ICBM_price[item]*ok < need_ICBM:
+                                    if have_ICBM + ICBM_price[item] * ok < need_ICBM:
                                         continue
                                     else:
                                         break
@@ -1917,37 +2171,33 @@ async def nuke(ctx, *targets: discord.Member):
                         embed=discord.Embed(description="Недостаточно МБР для доставки боеголовок", color=badColor))
                     return
 
-
-
-
                 keys = {
                     "firstKey": False,
                     "secondKey": False
                 }
 
-
-
                 async def cancel_call(interaction):
-                    await interaction.response.send_message(embed = discord.Embed(title = "Запуск ракет отменён", color = goodColor))
+                    await interaction.response.send_message(
+                        embed=discord.Embed(title="Запуск ракет отменён", color=goodColor))
                     return
 
-
-                button_cancel = Button(label = "Cancel", style=discord.ButtonStyle.blurple)
+                button_cancel = Button(label="Cancel", style=discord.ButtonStyle.blurple)
                 button_cancel.callback = cancel_call
-
 
                 view = View()
                 button1 = Button(emoji="🔑", style=discord.ButtonStyle.gray)
 
                 async def button1_call(interaction):
                     keys["firstKey"] = True
-                    await interaction.response.send_message(embed = discord.Embed(title = "Ключ 1 повёрнут", color = goodColor))
+                    await interaction.response.send_message(
+                        embed=discord.Embed(title="Ключ 1 повёрнут", color=goodColor))
+
                 button2 = Button(emoji="🔑", style=discord.ButtonStyle.gray)
 
                 async def button2_call(interaction):
                     keys["secondKey"] = True
-                    await interaction.response.send_message(embed = discord.Embed(title = "Ключ 2 повёрнут", color = goodColor))
-
+                    await interaction.response.send_message(
+                        embed=discord.Embed(title="Ключ 2 повёрнут", color=goodColor))
 
                 button1.callback = button1_call
                 button2.callback = button2_call
@@ -1955,17 +2205,14 @@ async def nuke(ctx, *targets: discord.Member):
                 view.add_item(button1)
                 view.add_item(button2)
                 view.add_item(button_cancel)
-                await ctx.send(embed = discord.Embed(title="Поверните оба ключа", color = infoColor), view=view)
-
-
-
+                await ctx.send(embed=discord.Embed(title="Поверните оба ключа", color=infoColor), view=view)
 
                 while not keys["firstKey"] or not keys["secondKey"]:
                     await asyncio.sleep(3)
 
                 view2 = View()
 
-                button3 = Button(emoji = "🔴", style=discord.ButtonStyle.danger)
+                button3 = Button(emoji="🔴", style=discord.ButtonStyle.danger)
 
                 list = {
                     "boom": False
@@ -1973,20 +2220,20 @@ async def nuke(ctx, *targets: discord.Member):
 
                 async def button3_call(interaction):
                     list["boom"] = True
-                    await interaction.response.send_message(embed = discord.Embed(title = "Ракеты запущены.", color = goodColor))
+                    await interaction.response.send_message(
+                        embed=discord.Embed(title="Ракеты запущены.", color=goodColor))
 
                 button3.callback = button3_call
 
                 view2.add_item(button3)
                 view2.add_item(button_cancel)
 
-                await ctx.send(embed = discord.Embed(description = "Всё уже готово, осталось лишь нажать на большую красную кнопку...", color = infoColor), view=view2)
-
-
+                await ctx.send(
+                    embed=discord.Embed(description="Всё уже готово, осталось лишь нажать на большую красную кнопку...",
+                                        color=infoColor), view=view2)
 
                 while not list["boom"]:
                     await asyncio.sleep(3)
-
 
                 for name, number in will_use.items():
                     update_user_inventory(ctx.author.id, name, -number)
@@ -1997,7 +2244,7 @@ async def nuke(ctx, *targets: discord.Member):
                 arrived_warheads = simple_list.copy()
 
                 # Отправка сообщения с изображением
-                channel_id = 1119553428474052669  # Замените на нужный вам ID канала
+                channel_id = news_channel  # Замените на нужный вам ID канала
                 title = "Запуск ракет"
                 message = f"{ctx.author.mention} запустил свои ракеты с ядерными боеголовками в воздух, предположительные цели: {', '.join([target.mention for target in targets])}"
                 image_path = "D:/RP World Bot/Images/rockets_start.png"  # Замените на нужный вам путь к изображению
@@ -2015,17 +2262,16 @@ async def nuke(ctx, *targets: discord.Member):
 
                         target_data = get_user_inventory(target_user_id)
 
+                        if "Про" in target_data:
 
-                        if "ПРО" in target_data:
-
-                            if "ЗГРЛС" in target_data:
-                                AMD_eff = target_data["ЗГРЛС"]*2 + 50
+                            if "Згрлс" in target_data:
+                                AMD_eff = target_data["Згрлс"] * 2 + 50
                             else:
                                 AMD_eff = 50
 
-                            channel_id = 1119553428474052669
-                            title = "Работа ПРО"
-                            message = f"ПРО {target.mention} начало отрабатывать по вражеским ракетам"
+                            channel_id = news_channel
+                            title = "Работа Про"
+                            message = f"Про {target.mention} начало отрабатывать по вражеским ракетам"
                             image_path = "D:/RP World Bot/Images/ARD.jpg"
 
                             await send_message_with_image(channel_id, title, message, image_path)
@@ -2037,7 +2283,7 @@ async def nuke(ctx, *targets: discord.Member):
 
                             number = len(keys) - 1
 
-                            for i in range(target_data["ПРО"]):
+                            for i in range(target_data["Про"]):
                                 if random.randint(1, 100) > AMD_eff:
                                     if number >= 0:
                                         arrived_warheads[keys[number]] -= 1
@@ -2077,28 +2323,37 @@ async def nuke(ctx, *targets: discord.Member):
                                     update_user_inventory(last_target_id, item, quantity)
                             if len(t_inv) > 0:
                                 shield = 0
-                                for item, quantity in t_inv.items():
-                                    if item in ICBM_price and sum_damage > 0 or item in nuke_damage and sum_damage > 0 or item == "Ядерная программа" and sum_damage > 0:
-                                        reserve[item] = quantity
-                                        update_user_inventory(target_id_2, item, -quantity)
-                                        continue
-                                    if sum_damage > quantity:
-                                        update_user_inventory(target_id_2, item, -quantity)
-                                        sum_damage -= quantity
-                                        if target_id_2 not in destroyed:
-                                            destroyed[target_id_2] = {}
-                                        this_person = destroyed[target_id_2]
+                                ran1 = []
+                                ran = t_inv
+                                for i in ran:
+                                    ran1.append(i)
+                                item = random.choice(ran1)
+                                quantity = 1
+                                if item in ICBM_price and sum_damage > 0 or item in nuke_damage and sum_damage > 0 or item == "Ядерная программа" and sum_damage > 0:
+                                    reserve[item] = quantity
+                                    update_user_inventory(target_id_2, item, -quantity)
+                                    continue
+                                if sum_damage >= quantity:
+                                    update_user_inventory(target_id_2, item, -quantity)
+                                    sum_damage -= quantity
+                                    if target_id_2 not in destroyed:
+                                        destroyed[target_id_2] = {}
+                                    this_person = destroyed[target_id_2]
+                                    if item not in this_person:
                                         this_person[item] = quantity
-                                    elif quantity > sum_damage > 0:
-                                        update_user_inventory(target_id_2, item, -sum_damage)
-                                        sum_damage = 0
-                                        if target_id_2 not in destroyed:
-                                            destroyed[target_id_2] = {}
-                                        this_person = destroyed[target_id_2]
+                                    else:
+                                        this_person[item] = this_person[item] + quantity
+                                elif quantity > sum_damage > 0:
+                                    update_user_inventory(target_id_2, item, -sum_damage)
+                                    sum_damage = 0
+                                    if target_id_2 not in destroyed:
+                                        destroyed[target_id_2] = {}
+                                    this_person = destroyed[target_id_2]
+                                    if item not in this_person:
                                         this_person[item] = sum_damage
                                     else:
-                                        break
-                                    break
+                                        this_person[item] = this_person[item] + sum_damage
+                                    turn_off = True
                             else:
                                 shield += 1
                             if shield >= len(targets):
@@ -2121,7 +2376,7 @@ async def nuke(ctx, *targets: discord.Member):
                     image_path = "D:/RP World Bot/Images/ARD_succes.jpg"
 
                 title = "Результаты ядерной атаки"
-                channel = 1119553428474052669
+                channel = news_channel
                 await send_message_with_image(channel, title, text, image_path)
 
             else:
@@ -2134,7 +2389,7 @@ async def nuke(ctx, *targets: discord.Member):
         await ctx.send("Недостаточный уровень готовности ядерных сил")
 
 
-ICBM_list = {"МБР", "МБР х3", "МБР х6", "МБР х10"}
+ICBM_list = {"Мбр", "Мбр х3", "Мбр х6", "Мбр х10"}
 attack_list_info = {"Термоядерная боеголовка 3 мт", "Термоядерная боеголовка 1 мт", "Термоядерная боеголовка 300 кт",
                     "Ядерная боеголовка 100 кт", "Ядерная боеголовка 60 кт", "Ядерная боеголовка 30 кт"}
 
@@ -2142,6 +2397,52 @@ attack_list_info = {"Термоядерная боеголовка 3 мт", "Т�
 @bot.command(name="add-attack")
 async def add_attack(ctx, quantity: int, *item_name: str):
     item_name = " ".join(item_name)
+    item_name = item_name.capitalize()
+
+    inv = get_user_inventory(ctx.author.id)
+
+    if item_name not in inv:
+        needed_items_names = {}
+        items = inv
+        i = 1
+        for item in items:
+            if item.find(item_name) != -1:
+                needed_items_names[item] = i
+                i += 1
+        if len(needed_items_names) > 1:
+            desc = ""
+            for name in needed_items_names:
+                desc += f"[{str(needed_items_names[name])}] - {name}\n"
+            await ctx.send(embed=discord.Embed(title="Найдено несколько предметов:", description=desc, color=infoColor))
+            numbers = []
+            for name in needed_items_names:
+                numbers.append(str(needed_items_names[name]))
+            try:
+                response = await bot.wait_for('message', timeout=30, check=lambda
+                    message: message.author == ctx.author and message.channel == ctx.channel)
+
+                resp = response.content.lower()
+                if resp in numbers:
+                    number = resp
+                    need_name = ""
+                    for name in needed_items_names:
+                        if str(needed_items_names[name]) == number:
+                            need_name = name
+                    item_name = need_name
+                else:
+                    await ctx.send(embed=discord.Embed(title="Введено неверное число, команда отменена", color=badColor))
+                    return
+            except asyncio.TimeoutError:
+                await ctx.send(embed=discord.Embed(title="Время вышло, команда отменена", color=badColor))
+                return
+
+        elif len(needed_items_names) == 1:
+            for name in needed_items_names:
+                item_name = name
+        else:
+            embed = discord.Embed(title="Предмет не найден", color=badColor)
+            await ctx.send(embed=embed)
+            return
 
     # Проверка наличия предмета в словаре attack-list
     if item_name in attack_list_info:
@@ -2184,6 +2485,50 @@ async def add_attack(ctx, quantity: int, *item_name: str):
 async def remove_attack(ctx, quantity: int, *item_name: str):
     item_name = " ".join(item_name)
 
+    if item_name not in attack_list_info:
+        needed_items_names = {}
+        items = attack_list_info
+        i = 1
+        for item in items:
+            if item.find(item_name) != -1:
+                needed_items_names[item] = i
+                i += 1
+        if len(needed_items_names) > 1:
+            desc = ""
+            for name in needed_items_names:
+                desc += f"[{str(needed_items_names[name])}] - {name}\n"
+            await ctx.send(embed=discord.Embed(title="Найдено несколько предметов:", description=desc, color=infoColor))
+            numbers = []
+            for name in needed_items_names:
+                numbers.append(str(needed_items_names[name]))
+            try:
+                response = await bot.wait_for('message', timeout=30, check=lambda
+                    message: message.author == ctx.author and message.channel == ctx.channel)
+
+                resp = response.content.lower()
+                if resp in numbers:
+                    number = resp
+                    need_name = ""
+                    for name in needed_items_names:
+                        if str(needed_items_names[name]) == number:
+                            need_name = name
+                    item_name = need_name
+                else:
+                    await ctx.send(
+                        embed=discord.Embed(title="Введено неверное число, команда отменена", color=badColor))
+                    return
+            except asyncio.TimeoutError:
+                await ctx.send(embed=discord.Embed(title="Время вышло, команда отменена", color=badColor))
+                return
+
+        elif len(needed_items_names) == 1:
+            for name in needed_items_names:
+                item_name = name
+        else:
+            embed = discord.Embed(title="Предмет не найден", color=badColor)
+            await ctx.send(embed=embed)
+            return
+
     user_id = str(ctx.author.id)
     user_file_path = f"D:/RP World Bot/Users/{user_id}.json"
 
@@ -2220,7 +2565,7 @@ async def remove_attack(ctx, quantity: int, *item_name: str):
         await ctx.send("Нет списка атаки")
 
 
-@bot.command(name="attack-list")
+@bot.command(name="attack-info")
 async def attack_list(ctx):
     user_id = str(ctx.author.id)
     user_file_path = f"D:/RP World Bot/Users/{user_id}.json"
@@ -2274,7 +2619,13 @@ async def send_message_with_image(channel_id, title, message, image_path):
 async def build_info(ctx):
     builds = list(build_rules.keys())
     total_builds = len(builds)
-    batch_size = 20  # Размер пачки рецептов
+    batch_size = 5  # Размер пачки рецептов
+
+    batches = []
+
+    c = {
+        "current_batch": 0
+    }
 
     # Разделение рецептов на пачки
     build_batches = [builds[i:i + batch_size] for i in range(0, total_builds, batch_size)]
@@ -2290,116 +2641,174 @@ async def build_info(ctx):
             price = build_info.get("price", 0)
             build_time = build_info.get("build_time", 0)
 
-            build_text = "**Необходимые ресурсы:**\n"
+            build_text = "*Необходимые ресурсы:*"
             for resource, amount in required_resources.items():
-                build_text += f"- {resource}: {amount:,}\n"
+                build_text += f"\n- {resource}: {amount:,}"
 
-            build_text += f"\n**Цена:** {price:,}\n"
-            build_text += f"**Время постройки:** {build_time} **минут**\n"
+            build_text += f"\n*Цена:* {price:,}"
+            build_text += f"\n*Время постройки:* {build_time} *минут*"
 
-            build_text += "\n"
+            embed.add_field(name=f"🏗️ Постройка: {build}", value=build_text, inline=False)
 
-            embed.add_field(name=f"Постройка: {build}", value=build_text, inline=False)
+        batches.append(embed)
 
-        # Отправляем встроенное сообщение в канал
-        await ctx.send(embed=embed)
+    max_batch = len(batches) - 1
+
+    view = View()
+
+    next_page = Button(label="➡️", style=discord.ButtonStyle.blurple)
+    previous_page = Button(label="⬅️", style=discord.ButtonStyle.blurple)
+
+    async def next_call(interaction):
+        if c["current_batch"] < max_batch:
+            c["current_batch"] += 1
+            await message.edit(embed=batches[c["current_batch"]], view = view)
+    async def previous_call(interaction):
+        if c["current_batch"] > 0:
+            c["current_batch"] -= 1
+            await message.edit(embed=batches[c["current_batch"]], view=view)
+
+    next_page.callback = next_call
+    previous_page.callback = previous_call
+    view.add_item(previous_page)
+    view.add_item(next_page)
+
+    message = await ctx.send(embed = batches[0], view=view)
 
 
 build_rules = {
     "Стройкомплекс": {
         "required_resources": {},
         "price": 200000000,
-        "build_time": 60
+        "build_time": 60,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Городской комплекс": {
         "required_resources": {},
-        "price": 35000000,
-        "build_time": 25
+        "price": 100000000,
+        "build_time": 25,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Ферма": {
         "required_resources": {},
-        "price": 20000000,
-        "build_time": 40
+        "price": 30000000,
+        "build_time": 40,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Торговый центр": {
         "required_resources": {},
-        "price": 25000000,
-        "build_time": 30
+        "price": 50000000,
+        "build_time": 30,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Отель": {
         "required_resources": {},
-        "price": 20000000,
-        "build_time": 20
+        "price": 25000000,
+        "build_time": 20,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Музей": {
         "required_resources": {},
         "price": 60000000,
-        "build_time": 30
+        "build_time": 30,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Аквапарк": {
         "required_resources": {},
-        "price": 10000000,
-        "build_time": 5
+        "price": 20000000,
+        "build_time": 10,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Аэропорт": {
         "required_resources": {},
-        "price": 100000000,
-        "build_time": 40
+        "price": 200000000,
+        "build_time": 60,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Частный район": {
         "required_resources": {},
-        "price": 10000000,
-        "build_time": 10
+        "price": 20000000,
+        "build_time": 10,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Многоэтажный Район": {
         "required_resources": {},
-        "price": 50000000,
-        "build_time": 20
+        "price": 60000000,
+        "build_time": 20,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Дорога": {
         "required_resources": {},
-        "price": 8000000,
-        "build_time": 5
+        "price": 5000000,
+        "build_time": 5,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Железная дорога": {
         "required_resources": {},
-        "price": 25000000,
-        "build_time": 15
+        "price": 15000000,
+        "build_time": 15,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Полицейский участок": {
         "required_resources": {},
         "price": 30000000,
-        "build_time": 20
+        "build_time": 20,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Тюрьма": {
         "required_resources": {},
         "price": 100000000,
-        "build_time": 60
+        "build_time": 60,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Лаборатория": {
         "required_resources": {},
         "price": 300000000,
-        "build_time": 60
+        "build_time": 60,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Ботанический сад": {
         "required_resources": {},
         "price": 300000000,
-        "build_time": 40
+        "build_time": 40,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Больница": {
         "required_resources": {},
         "price": 200000000,
-        "build_time": 60
+        "build_time": 60,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Аптека": {
         "required_resources": {},
         "price": 10000000,
-        "build_time": 10
+        "build_time": 10,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Космодром": {
         "required_resources": {},
         "price": 5000000000,
-        "build_time": 120
+        "build_time": 120,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Космическая ракета": {
         "required_resources": {
@@ -2408,7 +2817,9 @@ build_rules = {
             "Микроконтроллеры": 30
         },
         "price": 1500000000,
-        "build_time": 60
+        "build_time": 60,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Спутник": {
         "required_resources": {
@@ -2416,7 +2827,9 @@ build_rules = {
             "Микроконтроллеры": 60
         },
         "price": 1000000000,
-        "build_time": 30
+        "build_time": 30,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Луноход": {
         "required_resources": {
@@ -2425,7 +2838,9 @@ build_rules = {
             "Микроконтроллеры": 50
         },
         "price": 1500000000,
-        "build_time": 60
+        "build_time": 60,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Марсоход": {
         "required_resources": {
@@ -2434,118 +2849,158 @@ build_rules = {
             "Микроконтроллеры": 100
         },
         "price": 2000000000,
-        "build_time": 80
+        "build_time": 80,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Офис парк": {
         "required_resources": {},
         "price": 500000000,
-        "build_time": 40
+        "build_time": 40,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Ядерный реактор": {
         "required_resources": {},
         "price": 5000000000,
-        "build_time": 180
+        "build_time": 180,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Ректификационная колонна": {
         "required_resources": {},
         "price": 300000000,
-        "build_time": 30
+        "build_time": 30,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Химический завод": {
         "required_resources": {},
         "price": 1000000000,
-        "build_time": 30
+        "build_time": 30,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Фабрика микроконтроллеров": {
         "required_resources": {},
         "price": 10000000000,
-        "build_time": 180
+        "build_time": 180,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Металлургический комбинат": {
         "required_resources": {},
         "price": 600000000,
-        "build_time": 30
+        "build_time": 30,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
-    "ЯТК": {
+    "Ятк": {
         "required_resources": {},
         "price": 3000000000,
-        "build_time": 120
+        "build_time": 120,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
-    "НПЗ": {
+    "Нпз": {
         "required_resources": {},
         "price": 1000000000,
-        "build_time": 40
+        "build_time": 40,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
-    "ГОК": {
+    "Гок": {
         "required_resources": {},
         "price": 500000000,
-        "build_time": 30
+        "build_time": 30,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Обогатительная центрифуга": {
         "required_resources": {},
         "price": 2000000000,
-        "build_time": 60
+        "build_time": 60,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
-    "Солнечная Батарея": {
+    "Солнечная батарея": {
         "required_resources": {},
         "price": 20000000,
-        "build_time": 10
+        "build_time": 10,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Ветряная электростанция": {
         "required_resources": {},
         "price": 50000000,
-        "build_time": 20
+        "build_time": 20,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
-    "ГЭС": {
+    "Гэс": {
         "required_resources": {},
         "price": 250000000,
-        "build_time": 40
+        "build_time": 40,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
-    "ТЭС": {
+    "Тэс": {
         "required_resources": {},
         "price": 200000000,
-        "build_time": 20
+        "build_time": 20,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
-    "АЭС": {
+    "Аэс": {
         "required_resources": {},
-        "price": 3000000000,
-        "build_time": 60
+        "price": 2000000000,
+        "build_time": 60,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
-    "МБР": {
+    "Мбр": {
         "required_resources": {
             "Сталь": 20,
             "Керосин": 20,
             "Микроконтроллеры": 5
         },
         "price": 300000000,
-        "build_time": 20
+        "build_time": 20,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
-    "МБР х3": {
+    "Мбр х3": {
         "required_resources": {
             "Сталь": 30,
             "Керосин": 30,
             "Микроконтроллеры": 10
         },
         "price": 1000000000,
-        "build_time": 25
+        "build_time": 25,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
-    "МБР х6": {
+    "Мбр х6": {
         "required_resources": {
             "Сталь": 50,
             "Керосин": 50,
             "Микроконтроллеры": 20
         },
         "price": 1600000000,
-        "build_time": 30
+        "build_time": 30,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
-    "МБР х10": {
+    "Мбр х10": {
         "required_resources": {
             "Сталь": 70,
             "Керосин": 70,
             "Микроконтроллеры": 35
         },
         "price": 2000000000,
-        "build_time": 30
+        "build_time": 30,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Ядерная боеголовка 30 кт": {
         "required_resources": {
@@ -2553,7 +3008,9 @@ build_rules = {
             "Плутоний-239": 2
         },
         "price": 600000000,
-        "build_time": 15
+        "build_time": 15,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Ядерная боеголовка 60 кт": {
         "required_resources": {
@@ -2561,7 +3018,9 @@ build_rules = {
             "Плутоний-239": 4
         },
         "price": 1000000000,
-        "build_time": 15
+        "build_time": 15,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Ядерная боеголовка 100 кт": {
         "required_resources": {
@@ -2569,7 +3028,9 @@ build_rules = {
             "Плутоний-239": 5
         },
         "price": 1500000000,
-        "build_time": 15
+        "build_time": 15,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Термоядерная боеголовка 300 кт": {
         "required_resources": {
@@ -2580,7 +3041,9 @@ build_rules = {
             "Литий-6": 3
         },
         "price": 2500000000,
-        "build_time": 30
+        "build_time": 30,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Термоядерная боеголовка 1 мт": {
         "required_resources": {
@@ -2591,7 +3054,9 @@ build_rules = {
             "Литий-6": 6
         },
         "price": 5000000000,
-        "build_time": 30
+        "build_time": 30,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Термоядерная боеголовка 3 мт": {
         "required_resources": {
@@ -2602,16 +3067,20 @@ build_rules = {
             "Литий-6": 18
         },
         "price": 10000000000,
-        "build_time": 30
+        "build_time": 30,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Ядерная программа": {
         "required_resources": {
             "Высокообогащённый уран (>90%)": 50
         },
         "price": 50000000000,
-        "build_time": 300
+        "build_time": 300,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
-    "ПРО": {
+    "Про": {
         "required_resources": {
             "Микроконтроллеры": 25,
             "Свинец": 30,
@@ -2619,36 +3088,307 @@ build_rules = {
             "Порох": 10
         },
         "price": 3000000000,
-        "build_time": 60
+        "build_time": 60,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
-    "ЗГРЛС": {
+    "Згрлс": {
         "required_resources": {
             "Микроконтроллеры": 100,
             "Свинец": 100,
             "Сталь": 50,
         },
         "price": 8000000000,
-        "build_time": 100
+        "build_time": 100,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
-    "Штаб ГРУ": {
+    "Штаб гру": {
         "required_resources": {},
         "price": 800000000,
-        "build_time": 40
+        "build_time": 40,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Шахта": {
         "required_resources": {},
         "price": 400000000,
-        "build_time": 30
+        "build_time": 30,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
     "Рудообрабатывающее предприятие": {
         "required_resources": {},
         "price": 200000000,
-        "build_time": 20
+        "build_time": 20,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
     },
-    # "": {
+    "Химическое оружие": {
+        "required_resources": {
+            "Аммиак": 20,
+            "Сера": 5
+        },
+        "price": 50000000,
+        "build_time": 15,
+        "required_item": "Стройкомплекс",
+        "items_required": 1
+    },
+    # "Военный завод": {
     #     "required_resources": {},
-    #     "price": 0,
-    #     "build_time": 0
+    #     "price": 300000000,
+    #     "build_time": 30,
+    #     "required_item": "Стройкомплекс",
+    #     "items_required": 1
+    # },
+    # "Пп мина": {
+    #     "required_resources": {
+    #         "Порох": 0.1
+    #     },
+    #     "price": 100000,
+    #     "build_time": 30,
+    #     "required_item": "Военный завод",
+    #     "items_required": 0.001
+    # },
+    # "Пт мина": {
+    #     "required_resources": {
+    #         "Порох": 0.2
+    #     },
+    #     "price": 300000,
+    #     "build_time": 30,
+    #     "required_item": "Военный завод",
+    #     "items_required": 0.001
+    # },
+    # "Морская мина": {
+    #     "required_resources": {
+    #         "Порох": 0.5
+    #     },
+    #     "price": 1000000,
+    #     "build_time": 30,
+    #     "required_item": "Военный завод",
+    #     "items_required": 0.001
+    # },
+    # "Винтовка": {
+    #     "required_resources": {
+    #     },
+    #     "price": 10000,
+    #     "build_time": 30,
+    #     "required_item": "Военный завод",
+    #     "items_required": 0.01
+    # },
+    # "Снайперская винтовка": {
+    #     "required_resources": {
+    #     },
+    #     "price": 100000,
+    #     "build_time": 30,
+    #     "required_item": "Военный завод",
+    #     "items_required": 0.01
+    # },
+    # "Автомат": {
+    #     "required_resources": {
+    #     },
+    #     "price": 50000,
+    #     "build_time": 30,
+    #     "required_item": "Военный завод",
+    #     "items_required": 0.01
+    # },
+    # "Пп гранатомёт": {
+    #     "required_resources": {
+    #     },
+    #     "price": 200000,
+    #     "build_time": 30,
+    #     "required_item": "Военный завод",
+    #     "items_required": 0.05
+    # },
+    # "Бтр": {
+    #     "required_resources": {
+    #         "Сталь": 5,
+    #         "Дизельное топливо": 3
+    #     },
+    #     "price": 5000000,
+    #     "build_time": 30,
+    #     "required_item": "Военный завод",
+    #     "items_required": 0.2
+    # },
+    # "Бмп": {
+    #     "required_resources": {
+    #         "Сталь": 10,
+    #         "Микроконтроллеры": 1,
+    #         "Дизельное топливо": 5
+    #     },
+    #     "price": 20000000,
+    #     "build_time": 30,
+    #     "required_item": "Военный завод",
+    #     "items_required": 0.5
+    # },
+    # "Обт": {
+    #     "required_resources": {
+    #         "Сталь": 20,
+    #         "Микроконтроллеры": 3,
+    #         "Дизельное топливо": 10
+    #     },
+    #     "price": 100000000,
+    #     "build_time": 30,
+    #     "required_item": "Военный завод",
+    #     "items_required": 1
+    # },
+    # "Гаубица": {
+    #     "required_resources": {
+    #     },
+    #     "price": 10000000,
+    #     "build_time": 30,
+    #     "required_item": "Военный завод",
+    #     "items_required": 0.5
+    # },
+    # "Сау": {
+    #     "required_resources": {
+    #     },
+    #     "price": 15000000,
+    #     "build_time": 30,
+    #     "required_item": "Военный завод",
+    #     "items_required": 0.5
+    # },
+    # "Переносной птрк": {
+    #     "required_resources": {
+    #     },
+    #     "price": 1000000,
+    #     "build_time": 30,
+    #     "required_item": "Военный завод",
+    #     "items_required": 0.1
+    # },
+    # "Самоходный птрк": {
+    #     "required_resources": {
+    #     },
+    #     "price": 10000000,
+    #     "build_time": 30,
+    #     "required_item": "Военный завод",
+    #     "items_required": 0.5
+    # },
+    # "Зрк": {
+    #     "required_resources": {
+    #         "Микроконтроллеры": 3
+    #     },
+    #     "price": 50000000,
+    #     "build_time": 30,
+    #     "required_item": "Военный завод",
+    #     "items_required": 1
+    # },
+    # "Рсзо": {
+    #     "required_resources": {
+    #     },
+    #     "price": 20000000,
+    #     "build_time": 30,
+    #     "required_item": "Военный завод",
+    #     "items_required": 0.5
+    # },
+    # "Многоцелевой истребитель": {
+    #     "required_resources": {
+    #         "Сталь": 10,
+    #         "Микроконтроллеры": 10
+    #     },
+    #     "price": 500000000,
+    #     "build_time": 30,
+    #     "required_item": "Военный завод",
+    #     "items_required": 1
+    # },
+    # "Истребитель": {
+    #     "required_resources": {
+    #         "Сталь": 8,
+    #         "Микроконтроллеры": 10
+    #     },
+    #     "price": 450000000,
+    #     "build_time": 30,
+    #     "required_item": "Военный завод",
+    #     "items_required": 1
+    # },
+    # "Штурмовик": {
+    #     "required_resources": {
+    #         "Сталь": 10,
+    #         "Микроконтроллеры": 8
+    #     },
+    #     "price": 400000000,
+    #     "build_time": 30,
+    #     "required_item": "Военный завод",
+    #     "items_required": 1
+    # },
+    # "Стратегический бомбардировщик": {
+    #     "required_resources": {
+    #         "Сталь": 20,
+    #         "Микроконтроллеры": 20
+    #     },
+    #     "price": 1000000000,
+    #     "build_time": 30,
+    #     "required_item": "Военный завод",
+    #     "items_required": 3
+    # },
+    # "Фрегат": {
+    #     "required_resources": {
+    #         "Сталь": 30,
+    #         "Микроконтроллеры": 10
+    #     },
+    #     "price": 100000000,
+    #     "build_time": 30,
+    #     "required_item": "Военный завод",
+    #     "items_required": 2
+    # },
+    # "Эсминец": {
+    #     "required_resources": {
+    #         "Сталь": 50,
+    #         "Микроконтроллеры": 30
+    #     },
+    #     "price": 1000000000,
+    #     "build_time": 30,
+    #     "required_item": "Военный завод",
+    #     "items_required": 5
+    # },
+    # "Крейсер": {
+    #     "required_resources": {
+    #         "Сталь": 80,
+    #         "Микроконтроллеры": 50
+    #     },
+    #     "price": 3000000000,
+    #     "build_time": 30,
+    #     "required_item": "Военный завод",
+    #     "items_required": 10
+    # },
+    # "Авианосец": {
+    #     "required_resources": {
+    #         "Сталь": 120,
+    #         "Микроконтроллеры": 10
+    #     },
+    #     "price": 10000000000,
+    #     "build_time": 30,
+    #     "required_item": "Военный завод",
+    #     "items_required": 15
+    # },
+    # "Подлодка": {
+    #     "required_resources": {
+    #         "Сталь": 30,
+    #         "Микроконтроллеры": 10
+    #     },
+    #     "price": 500000000,
+    #     "build_time": 30,
+    #     "required_item": "Военный завод",
+    #     "items_required": 3
+    # },
+    # "Ударный вертолёт": {
+    #     "required_resources": {
+    #         "Сталь": 20,
+    #         "Микроконтроллеры": 5
+    #     },
+    #     "price": 150000000,
+    #     "build_time": 30,
+    #     "required_item": "Военный завод",
+    #     "items_required": 1
+    # },
+    # "Транспортный вертолёт": {
+    #     "required_resources": {
+    #         "Сталь": 25
+    #     },
+    #     "price": 300000000,
+    #     "build_time": 30,
+    #     "required_item": "Военный завод",
+    #     "items_required": 1
     # },
 }
 
@@ -2686,8 +3426,9 @@ def subtract_currency(user_id, amount):
 
 
 @bot.command(name="build")
-async def build(ctx, amount: str, *item: str):
-    item = " ".join(item)
+async def build(ctx, amount: str, *item_name: str):
+    item_name = " ".join(item_name)
+    item_name = item_name.capitalize()
 
     user_id = ctx.author.id
     user_balance = get_user_balance(user_id)
@@ -2697,6 +3438,11 @@ async def build(ctx, amount: str, *item: str):
         max_builds = (user_inventory["Стройкомплекс"] // 10) + 6
     else:
         max_builds = 6
+    # if "Военный завод" in user_inventory:
+    #     max_wars = user_inventory["Военный завод"]
+    # else:
+    #     max_wars = 0
+
 
     amount = amount.replace(",", "")
     amount = int(amount)
@@ -2710,33 +3456,68 @@ async def build(ctx, amount: str, *item: str):
         await ctx.send(embed=embed)
         return
 
-    # Проверяем, если указанный предмет может быть построен
-    if item not in build_rules:
-        embed = discord.Embed(
-            description=f"{item} не может быть построен (возможно, его не существует)",
-            color=badColor
-        )
-        await ctx.send(embed=embed)
-        return
+    if item_name not in conversion_rules:
+        needed_items_names = {}
+        items = build_rules
+        i = 1
+        for item in items:
+            if item.find(item_name) != -1:
+                needed_items_names[item] = i
+                i += 1
+        if len(needed_items_names) > 1:
+            desc = ""
+            for name in needed_items_names:
+                desc += f"[{str(needed_items_names[name])}] - {name}\n"
+            await ctx.send(embed=discord.Embed(title="Найдено несколько рецептов:", description=desc, color=infoColor))
+            numbers = []
+            for name in needed_items_names:
+                numbers.append(str(needed_items_names[name]))
+            try:
+                response = await bot.wait_for('message', timeout=30, check=lambda
+                    message: message.author == ctx.author and message.channel == ctx.channel)
 
-    if item == "Ядерная боеголовка 30 кт" or item == "Ядерная боеголовка 60 кт" or item == "Ядерная боеголовка 100 кт" or item == "Термоядерная боеголовка 300 кт" or item == "Термоядерная боеголовка 1 мт" or item == "Термоядерная боеголовка 3 мт":
+                resp = response.content.lower()
+                if resp in numbers:
+                    number = resp
+                    need_name = ""
+                    for name in needed_items_names:
+                        if str(needed_items_names[name]) == number:
+                            need_name = name
+                    item_name = need_name
+                else:
+                    await ctx.send(embed=discord.Embed(title="Введено неверное число, строительство отменено", color=badColor))
+                    return
+            except asyncio.TimeoutError:
+                await ctx.send(embed=discord.Embed(title="Время вышло, строительство отменено", color=badColor))
+                return
+
+        elif len(needed_items_names) == 1:
+            for name in needed_items_names:
+                item_name = name
+        else:
+            embed = discord.Embed(title="Рецепт не найден", color=badColor)
+            await ctx.send(embed=embed)
+            return
+
+    if item_name == "Ядерная боеголовка 30 кт" or item_name == "Ядерная боеголовка 60 кт" or item_name == "Ядерная боеголовка 100 кт" or item_name == "Термоядерная боеголовка 300 кт" or item_name == "Термоядерная боеголовка 1 мт" or item_name == "Термоядерная боеголовка 3 мт":
         if "Ядерная программа" not in user_inventory:
             await ctx.send(
-                embed=discord.Embed(description=f"Для производства {item} необходимо наличие ядерной программы",
+                embed=discord.Embed(description=f"Для производства {item_name} необходимо наличие ядерной программы",
                                     color=badColor))
             return
 
     # Получаем правила построения для указанного предмета
-    build_rule = build_rules[item]
+    build_rule = build_rules[item_name]
 
     # Проверяем, если предмет уже находится в процессе постройки
-    if is_item_building(user_id) and is_item_built(user_id, item):
+    if is_item_building(user_id) and is_item_built(user_id, item_name):
         embed = discord.Embed(
-            description=f"{item} уже находится в процессе постройки",
+            description=f"{item_name} уже находится в процессе постройки",
             color=badColor
         )
         await ctx.send(embed=embed)
         return
+
 
     total_builds = 0
     if is_item_building(user_id):
@@ -2750,11 +3531,26 @@ async def build(ctx, amount: str, *item: str):
         )
         await ctx.send(embed=embed)
         return
+    # else:
+    #     total_builds = 0
+    #     if is_item_building(user_id):
+    #         for items in building_items[user_id]:
+    #             build_rule1 = build_rules[items]
+    #             total_builds += items["amount"] * build_rule1["items_required"]
+    #     total_builds = math.ceil(total_builds)
+    #     # Проверяем, если пользователь превысил лимит построек
+    #     if total_builds + (amount * build_rule["items_required"]) > max_wars:
+    #         embed = discord.Embed(
+    #             description=f"Одновременно может быть занято не более {max_wars} военных заводов",
+    #             color=badColor
+    #         )
+    #         await ctx.send(embed=embed)
+    #         return
 
     # Проверяем, если у пользователя недостаточно денег
     if user_balance < build_rule["price"] * amount:
         embed = discord.Embed(
-            description=f"Недостаточно денег для постройки {amount} {item}",
+            description=f"Недостаточно денег для постройки {amount} {item_name}",
             color=badColor
         )
         await ctx.send(embed=embed)
@@ -2763,7 +3559,7 @@ async def build(ctx, amount: str, *item: str):
     # Проверяем, если у пользователя достаточно ресурсов
     if not has_sufficient_resources(user_id, build_rule["required_resources"], amount):
         embed = discord.Embed(
-            description=f"Недостаточно ресурсов для постройки {amount} {item}",
+            description=f"Недостаточно ресурсов для постройки {amount} {item_name}",
             color=badColor
         )
         await ctx.send(embed=embed)
@@ -2776,17 +3572,17 @@ async def build(ctx, amount: str, *item: str):
     consume_resources(user_id, build_rule["required_resources"], amount)
 
     # Добавляем предмет в процесс постройки
-    build_time = build_rule.get("build_time") * 60  # Значение по умолчанию: 1800 секунд (30 минут)
+    build_time = build_rule.get("build_time") * 60
     start_time = time.time()
-    add_building_item(user_id, item, amount, start_time)
+    add_building_item(user_id, item_name, amount, start_time)
 
     embed = discord.Embed(
-        description=f"Началась стройка {amount} {item}",
+        description=f"Началась стройка {amount} {item_name}",
         color=goodColor
     )
 
-    if item == "Ядерная программа":
-        channel = 1119553428474052669
+    if item_name == "Ядерная программа":
+        channel = news_channel
         title = "Ядерные исследования"
         desc = f"Сегодня {ctx.author.mention} начал разработку своей ядерной программы. Неизвестно к чему это приведёт в будущем, но это точно создаст большую угрозу миру на планете"
         path = "D:/RP World Bot/Images/NucRes.jpg"
@@ -2812,6 +3608,8 @@ async def collect_buildings(ctx):
     min_time = -255000000
 
     collected_items = []
+    remaining_items = []
+
     for building_item in building_items[user_id]:
         item = building_item["item"]
         amount = building_item["amount"]
@@ -2824,8 +3622,11 @@ async def collect_buildings(ctx):
             update_user_inventory(user_id, item, amount)
             collected_items.append((item, amount))
         else:
+            remaining_items.append(building_item)
             if elapsed_time > min_time:
                 min_time = elapsed_time
+
+    building_items[user_id] = remaining_items
 
     need_time = -(int(min_time // 60))
     if need_time > 4 and need_time < 9:
@@ -2835,10 +3636,6 @@ async def collect_buildings(ctx):
             description = f"До готовности ближайшей стройки осталось ещё 7-8 так называемых минут"
     else:
         description = f"До готовности ближайшей стройки осталось {need_time} минут"
-
-    # Удаляем собранные предметы из процесса постройки
-    building_items[user_id] = [building_item for building_item in building_items[user_id]
-                               if building_item["item"] not in collected_items]
 
     if len(collected_items) > 0:
         items_text = "\n".join([f"{item}: {amount}" for item, amount in collected_items])
@@ -2857,14 +3654,61 @@ async def collect_buildings(ctx):
 
 
 @bot.command(name='trade')
-async def trade(ctx, recipient: discord.User, amount: str, price: str, item: str):
+async def trade(ctx, recipient: discord.User, amount: str, price: str, *item: str):
+
+    item = " ".join(item)
+    item = item.capitalize()
+
     # Проверяем, есть ли у отправителя достаточно предметов для продажи
     sender_id = ctx.author.id
     server = ctx.guild
     sender_resources = get_user_resources(sender_id)
+
     if item not in sender_resources or sender_resources[item] < int(amount.replace(',', '')):
-        await ctx.send(embed=discord.Embed(title="Недостаточно ресурсов для продажи", color=badColor))
-        return
+        needed_items_names = {}
+        items = sender_resources
+        i = 1
+        for item in items:
+            if item.find(item) != -1:
+                needed_items_names[item] = i
+                i += 1
+        if len(needed_items_names) > 1:
+            desc = ""
+            for name in needed_items_names:
+                desc += f"[{str(needed_items_names[name])}] - {name}\n"
+            await ctx.send(embed=discord.Embed(title="Найдено несколько ресурсов:", description=desc, color=infoColor))
+            numbers = []
+            for name in needed_items_names:
+                numbers.append(str(needed_items_names[name]))
+            try:
+                response = await bot.wait_for('message', timeout=30, check=lambda
+                    message: message.author == ctx.author and message.channel == ctx.channel)
+
+                resp = response.content.lower()
+                if resp in numbers:
+                    number = resp
+                    need_name = ""
+                    for name in needed_items_names:
+                        if str(needed_items_names[name]) == number:
+                            need_name = name
+                    item = need_name
+                else:
+                    await ctx.send(embed=discord.Embed(title="Введено неверное число, продажа отменена", color=badColor))
+                    return
+            except asyncio.TimeoutError:
+                await ctx.send(embed=discord.Embed(title="Время вышло, продажа отменена", color=badColor))
+                return
+
+        elif len(needed_items_names) == 1:
+            for name in needed_items_names:
+                item = name
+        else:
+            embed = discord.Embed(title="Ресурс не найден", color=badColor)
+            await ctx.send(embed=embed)
+            return
+
+
+
 
     # Проверяем, разрешает ли получатель продажу
     embed = discord.Embed(
@@ -2900,7 +3744,7 @@ async def trade(ctx, recipient: discord.User, amount: str, price: str, item: str
 
 
 @bot.command(name="war")
-@commands.has_any_role(1100163622379995278, 1100165902646906910, 1099790203863969942)
+@commands.has_any_role(administrator_role, administrator_s_role, deputy_role, creator_role)
 async def initiate_war(ctx, *users: discord.Member):
     user_ids = [str(user.id) for user in users]
     initiator_id = str(ctx.author.id)
@@ -2919,7 +3763,7 @@ async def initiate_war(ctx, *users: discord.Member):
     await ctx.send(embed=discord.Embed(
         description=f"Война инициирована с пользователями: {', '.join([user.nick for user in users])}",
         color=goodColor))
-    channel = 1119553428474052669
+    channel = news_channel
     title = "Война"
     desc = f"Начался вооружённый конфликт между странами, его участники: {', '.join([user.mention for user in users])}"
     pict = "D:/RP World Bot/Images/war_start.jpg"
@@ -2927,7 +3771,7 @@ async def initiate_war(ctx, *users: discord.Member):
 
 
 @bot.command(name="war-stop")
-@commands.has_any_role(1100163622379995278, 1100165902646906910, 1099790203863969942)
+@commands.has_any_role(administrator_role, administrator_s_role, deputy_role, creator_role)
 async def stop_war(ctx, *users: discord.Member):
     user_ids = [str(user.id) for user in users]
 
@@ -2945,14 +3789,11 @@ async def stop_war(ctx, *users: discord.Member):
     await ctx.send(embed=discord.Embed(
         description=f"Война остановлена между пользователями: {', '.join([user.name for user in users])}",
         color=goodColor))
-    channel = 1119553428474052669
+    channel = news_channel
     title = "Конец войны"
     desc = f"Завершился вооружённый конфликт между странами, его участники: {', '.join([user.mention for user in users])}"
     pict = "D:/RP World Bot/Images/war_stop.jpg"
     await send_message_with_image(channel, title, desc, pict)
-
-
-
 
 
 import discord
@@ -2963,7 +3804,7 @@ investment_file_path = 'D:/RP World Bot/Users/investments.txt'
 
 
 @bot.command(name='bal')
-async def balance(ctx, user: discord.User = None):
+async def balance(ctx, user: discord.Member = None):
     # Получаем пользователя, отправившего команду
     if user is None:
         user = ctx.author
@@ -3009,7 +3850,7 @@ async def resources(ctx, user: discord.Member = None):
 
 
 @bot.command(name="res")
-async def resources(ctx, user: discord.User = None):
+async def resources(ctx, user: discord.Member = None):
     server = ctx.guild
     if user is None:
         user = ctx.author
@@ -3052,7 +3893,7 @@ async def resources(ctx, user: discord.User = None):
 #     await ctx.send(embed=embed)
 
 @bot.command(name='delete-item')
-@commands.has_any_role(1100163622379995278, 1100165902646906910, 1099790203863969942)
+@commands.has_any_role(tech_creator_role, administrator_role, administrator_s_role, deputy_role, creator_role)
 async def delete_item(ctx, *item_name: str):
     item_name = " ".join(item_name)
 
@@ -3072,9 +3913,8 @@ async def delete_item(ctx, *item_name: str):
 
 
 @bot.command(name='create-item')
-@commands.has_any_role(1100163622379995278, 1100165902646906910, 1099790203863969942)
+@commands.has_any_role(tech_creator_role, administrator_role, administrator_s_role, deputy_role, creator_role)
 async def create_item(ctx, item_name: str, item_price: str, role: discord.Role = None):
-
     if ctx.author.id == 1018486099460505622:
         await ctx.send(embed=discord.Embed(title="В доступе отказано",
                                            description=f"Во избежание дальнейших проблем с установкой цен и необходимости вносить изменения в код, пользователь {ctx.author.mention} не имеет доступа к созданию/редактированию/удалению предметов из магазина.",
@@ -3096,14 +3936,21 @@ async def create_item(ctx, item_name: str, item_price: str, role: discord.Role =
     await ctx.send(embed=discord.Embed(title=f"Предмет '{item_name}' успешно добавлен в список предметов",
                                        color=goodColor))
 
+
 @bot.command(name="edit-price")
-@commands.has_any_role(1100163622379995278, 1100165902646906910, 1099790203863969942)
+@commands.has_any_role(tech_creator_role, administrator_role, administrator_s_role, deputy_role, creator_role)
 async def edit_item_price(ctx, price: str, *item_name: str):
     item_name = " ".join(item_name)
     price = price.replace(",", "")
 
+    if ctx.author.id == 1018486099460505622:
+        await ctx.send(embed=discord.Embed(title="В доступе отказано",
+                                           description=f"Во избежание дальнейших проблем с установкой цен и необходимости вносить изменения в код, пользователь {ctx.author.mention} не имеет доступа к созданию/редактированию/удалению предметов из магазина.",
+                                           color=badColor))
+        return
+
     if not check_item_availability(item_name):
-        await ctx.send(embed = discord.Embed(title = "Предмет не найден", color = badColor))
+        await ctx.send(embed=discord.Embed(title="Предмет не найден", color=badColor))
         return
 
     role = get_role_id_by_item(item_name)
@@ -3111,8 +3958,7 @@ async def edit_item_price(ctx, price: str, *item_name: str):
     remove_item_from_shop(item_name)
     add_item(item_name, price, role)
 
-    await ctx.send(embed = discord.Embed(description = "Цена успешно перезаписана", color = goodColor))
-
+    await ctx.send(embed=discord.Embed(description="Цена успешно перезаписана", color=goodColor))
 
 
 ITEMS_FILE_PATH = "D:/RP World Bot/Server/items.txt"
@@ -3209,6 +4055,7 @@ async def shop(ctx):
 @bot.command(name='buy')
 async def buy(ctx, quantity: str, *item_name: str):
     item_name = " ".join(item_name)
+    item_name = item_name.capitalize()
 
     # Удаление запятых из введенного количества
     quantity = quantity.replace(",", "")
@@ -3227,23 +4074,53 @@ async def buy(ctx, quantity: str, *item_name: str):
     role_id = get_role_id_by_item(item_name)
 
     if item_price is None:
-        # Проверка на точное совпадение предмета
-        exact_match_items = [name for name, (price, _) in get_all_items1().items() if name.lower() == item_name.lower()]
-        if len(exact_match_items) >= 1:
-            item_name = exact_match_items[0]
-            item_price = get_item_price(item_name)
-            role_id = get_role_id_by_item(item_name)
+        needed_items_names = {}
+        items = get_all_items1()
+        i = 1
+        for item in items:
+            if item.find(item_name) != -1:
+                needed_items_names[item] = i
+                i += 1
+        if len(needed_items_names) > 1:
+            desc = ""
+            for name in needed_items_names:
+                desc += f"[{str(needed_items_names[name])}] - {name}\n"
+            await ctx.send(embed=discord.Embed(title="Найдено несколько предметов:", description=desc, color=infoColor))
+            numbers = []
+            for name in needed_items_names:
+                numbers.append(str(needed_items_names[name]))
+            try:
+                response = await bot.wait_for('message', timeout=30, check=lambda
+                    message: message.author == ctx.author and message.channel == ctx.channel)
+
+                resp = response.content.lower()
+                if resp in numbers:
+                    number = resp
+                    need_name = ""
+                    for name in needed_items_names:
+                        if str(needed_items_names[name]) == number:
+                            need_name = name
+                    item_price = get_item_price(need_name)
+                    role_id = get_role_id_by_item(need_name)
+                    item_name = need_name
+                else:
+                    await ctx.send(embed=discord.Embed(title="Введено неверное число, покупка отменена", color=badColor))
+                    return
+            except asyncio.TimeoutError:
+                await ctx.send(embed=discord.Embed(title="Время вышло, покупка отменена", color=badColor))
+                return
+
+        elif len(needed_items_names) == 1:
+            for name in needed_items_names:
+                item_price = get_item_price(name)
+                role_id = get_role_id_by_item(name)
+                item_name = name
         else:
-            embed = discord.Embed(
-                title=f"{item_name} не найден в магазине",
-                color=badColor
-            )
-            if exact_match_items:
-                embed.description = "Найдены предметы с похожими названиями:\n" + "\n".join(exact_match_items)
+            embed = discord.Embed(title="Предмет не найден", color=badColor)
             await ctx.send(embed=embed)
             return
 
-    # Проверка требуемой роли
+            # Проверка требуемой роли
     if role_id is not None and role_id != ' None':  # Изменение в этой строке
         role = discord.utils.get(ctx.guild.roles, id=int(role_id))
         if role is None or role not in ctx.author.roles:
@@ -3302,13 +4179,15 @@ async def confirm_clear_inv(ctx, user: discord.User):
     except asyncio.TimeoutError:
         await ctx.send(embed=discord.Embed(title="Время ожидания истекло. Очистка отменена", color=badColor))
 
-@bot.command(name = "reset-inv")
-@commands.has_any_role(1100163622379995278, 1100165902646906910, 1099790203863969942)
+
+@bot.command(name="reset-inv")
+@commands.has_any_role(administrator_role, administrator_s_role, deputy_role, creator_role)
 async def reset_inventory(ctx, user: discord.User):
     await confirm_clear_inv(ctx, user)
 
+
 @bot.command(name="add-money")
-@commands.has_any_role(1100163622379995278, 1100165902646906910, 1099790203863969942)
+@commands.has_any_role(administrator_role, administrator_s_role, deputy_role, creator_role)
 async def add_money(ctx, user: discord.User, amount: str):
     amount = amount.replace(',', '')
 
@@ -3330,7 +4209,7 @@ async def add_money_error(ctx, error):
 
 
 @bot.command(name="remove-money")
-@commands.has_any_role(1100163622379995278, 1100165902646906910, 1099790203863969942)
+@commands.has_any_role(administrator_role, administrator_s_role, deputy_role, creator_role)
 async def remove_money(ctx, user: discord.User, amount: str):
     if user.id == 644813283936829470:
         await ctx.send(":angry:")
@@ -3357,14 +4236,15 @@ async def remove_money_error(ctx, error):
 
 
 @bot.command(name="reset-money")
-@commands.has_any_role(1100163622379995278, 1100165902646906910, 1099790203863969942)
+@commands.has_any_role(administrator_role, administrator_s_role, deputy_role, creator_role)
 async def reset_money(ctx, user: discord.User):
     if user.id == 644813283936829470:
         await ctx.send(":angry:")
         return
     update_user_balance(user.id, -get_user_balance(user.id))
 
-    await ctx.send(embed=discord.Embed(title=f"Успешно обнулён баланс пользователя {user.nick}.", color=goodColor))
+    await ctx.send(
+        embed=discord.Embed(description=f"Успешно обнулён баланс пользователя {user.mention}.", color=goodColor))
 
 
 @reset_money.error
@@ -3400,7 +4280,7 @@ async def clear_data(ctx):
         user_id = 644813283936829470
         user = await bot.fetch_user(user_id)
         await ctx.send(
-            embed=discord.Embed(title=f"Только {user.mention} может юзать эту команду :smiling_imp:", color=badColor))
+            embed=discord.Embed(title=f"Только {user.mention} может использовать эту команду", color=badColor))
         return
     await confirm_clear_data(ctx)
 
@@ -3415,7 +4295,7 @@ def get_user_balance(user_id):
             balance = int(file.read())
             return balance
     else:
-        return 0
+        return 1000000000
 
 
 def update_user_balance(user_id, amount):
